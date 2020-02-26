@@ -33,15 +33,27 @@ There are some basic rules that should be common sense, nevertheless here are th
 - Everything that is pushed to this repository should be partially functionable (basic qualitiy)
 - You **NEVER** commit directly to the master branch during development (During setup phase this can differ). 
 
+There are 2 main branches:
+- master
+- develop
+
+The master branch contains only tested and fully functionable code. Thus it is protected and content can only be merged via merge request.
+The develop branch contains code that is subject to change but is stable.
+
 #### Workflow
-If you start development
-- Create a new branch following the following the schema
+If you start development:
+- Create a new local branch following following the name schema
 
         pren_TOPIC
 
     where TOPIC is a quick explanaiton of the work. Example: **pren_pi_connection**
 - Do all your work on this branch and commit your local changes from time to time
-- 
+- Push your local changes to the repo if an increment is done.
+- If the work on this branch is finished, merge it into develop
+- If your branch is merged to develop, delete the branch (remote and locally)
+
+## License
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 
 
