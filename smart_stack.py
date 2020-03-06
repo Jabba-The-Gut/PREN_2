@@ -1,6 +1,6 @@
 from collections import deque
 import time
-import threading
+import asyncio
 '''
 Need to add support for thread safe containers using threading.lock().aquire/.release()
 '''
@@ -9,34 +9,35 @@ class stack:
     def __init__(self, size):
         self.size = size
         self.buf = deque()
-        self.buf_lock = threading.Lock()
 
     # Need to add logic to keep the buffer flowing. As in if there is no more space remove
     # earlier elements and make space
     # Almost like a sliding window
     # This sliding window type thing has been implemented below in @evaluate_relevant_data()
-    def push_to_stack(self, to_push):
-        if len(self.buf) < self.size:
-            self.buf.append(to_push)
-        else:
-            print("Increase stack size to accomodate more elements")
-    def pop_from_stack(self):
-        try:
-            return self.buf.pop()
-        except IndexError:
-            # print("Stack is empty cannot pop")
-            return None
+    async def push_to_stack(self, to_push):
+        sem = asyncio.Semaphore(1)
+        async with sem:
+            if len(self.buf) < self.size:
+                self.buf.append(to_push)
+            else:
+                print("Increase stack size to accommodate more elements")
 
-    def get_val(self, index):
-        lock = threading.Lock()
-        lock.acquire()
-        try:
+    async def pop_from_stack(self):
+        sem = asyncio.Semaphore(1)
+        async with sem:
+            try:
+                return self.buf.pop()
+            except IndexError:
+                # print("Stack is empty cannot pop")
+                return None
+
+    async def get_val(self, index):
+        sem = asyncio.Semaphore(1)
+        async with sem:
             return self.buf[index]
-        finally:
-            lock.release()
 
 
-class commsProtocol:
+class CommsProtocol:
 
     def __init__(self, stack_size):
         self.stack = stack(stack_size)
@@ -57,7 +58,7 @@ class commsProtocol:
         Convention for new_data is
         (height, side distance, front distance)
         :return: str
-        ==== Error Codes Retured ====
+        ==== Error Codes Returned ====
         Code 1 : new_data was not of type tuple
         Code 2 : new_data had more or less than 3 elements in it
         '''
@@ -80,14 +81,13 @@ class commsProtocol:
 class simulation:
     def __init__(self):
         self.send_data = False
-        self.cp = commsProtocol(10)
+        self.cp = CommsProtocol(10)
 
     def on(self):
         self.send_data = True
 
     def off(self):
         self.send_data = False
-
 
     def run_sim(self):
         if self.send_data:
@@ -104,7 +104,6 @@ class simulation:
             print(self.cp.stack.buf)
         else:
             print('emitter is off...')
-
 
 
 if __name__ == '__main__':
