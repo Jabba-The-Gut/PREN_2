@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "228bafd0c5f0abbaa0be7c2902502060c3ca98f4cb4f18677c1af8409eeb87a4"
+            "sha256": "2f8472acd94f2ec98dacc0a2a33e4ae5e6bd146653ba8baf97b59e78e5b3733a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -81,6 +81,14 @@
             "index": "pypi",
             "version": "==0.6.1"
         },
+        "pika": {
+            "hashes": [
+                "sha256:4e1a1a6585a41b2341992ec32aadb7a919d649eb82904fd8e4a4e0871c8cf3af",
+                "sha256:9fa76ba4b65034b878b2b8de90ff8660a59d925b087c5bb88f8fdbb4b64a1dbf"
+            ],
+            "index": "pypi",
+            "version": "==1.1.0"
+        },
         "protobuf": {
             "hashes": [
                 "sha256:0bae429443cc4748be2aadfdaf9633297cfaeb24a9a02d0ab15849175ce90fab",
@@ -103,6 +111,13 @@
                 "sha256:fdfb6ad138dbbf92b5dbea3576d7c8ba7463173f7d2cb0ca1bd336ec88ddbd80"
             ],
             "version": "==3.11.3"
+        },
+        "python3-pika": {
+            "hashes": [
+                "sha256:073267c932671cfbcc62d772eba511e77bae80e32a22a424dd9300bbb98b70b0"
+            ],
+            "index": "pypi",
+            "version": "==0.9.14"
         },
         "six": {
             "hashes": [

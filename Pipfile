@@ -7,6 +7,8 @@ verify_ssl = true
 
 [packages]
 mavsdk = "*"
+python3-pika = "*"
+pika = "*"
 
 [requires]
 python_version = "3.7"
