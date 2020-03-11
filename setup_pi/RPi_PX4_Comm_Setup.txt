@@ -1,0 +1,90 @@
+################################################
+# SETUP PX4 AND RASPBERRYPI ZERO W WITH MAVLINK#
+################################################
+
+1. Als erstes muss der PX4 so konfiguriert werden, dass MAVLINK über TELEM2 läuft:
+- https://dev.px4.io/v1.9.0/en/companion_computer/pixhawk_companion.html#pixhawk-setup
+
+2. Danach muss auf dem Raspberry Pi der Serial-Port konfiguriert werden:
+- sudo raspi-config
+- Would you like a login shell to be accessible over serial? -> No
+- Would you like the serial port hardware to be enabled? -> Yes
+Der serielle Port vom Pi ist nachher unter /dev/serial0 ansprechbar
+
+3. Als nächstes muss die mavsdk und mavsdk_server auf dem Pi installiert werden:
+- mit ssh auf den pi verbinden: ssh pi@raspberrypi.local
+- Angelehnt an: https://discuss.px4.io/t/talking-to-a-px4-fmu-with-a-rpi-via-serial-nousb-ardunope/14119   
+    - MavSDK aus Sourcen builden für Linux: https://mavsdk.mavlink.io/develop/en/contributing/build.html#build_cpp_linux
+    - MavSDK binaries System weit installieren: https://mavsdk.mavlink.io/develop/en/contributing/build.html#sdk_system_wide_install
+    - MAvSDK (python module) installieren (Build and run from sources): https://github.com/mavlink/MAVSDK-Python
+        -> am besten in einem virual enviornment: 
+	    - Virtuelles Environment in aktuellen Verzeichnis in unterordner pren_venv mit pyhton 3 anlegen:
+        > python3 -m venv pren_venv
+	    > source pren_venv/bin/activate (virtual env aktivieren)
+    - mavsdk_server builden (auf Mac): https://mavsdk.mavlink.io/develop/en/contributing/build.html#cross_compilation_dockcross
+        -> mittels dockcross. Damit die commands funktionieren, muss docker installiert werden
+        -> zudem muss docker run --rm dockcross/linux-armv7 > ./dockcross-linux-armv7 
+        abgeändert werden in docker run --rm dockcross/linux-armv6 > ./dockcross-linux-armv6. 
+        Denn der PiZero hat eine linux-armv6 Architektur
+    - sobald die cross compilation fertig ist, findet man im Verzeichnis 
+    /Users/jabbathegut/repositories/MAVSDK/build/linux-armv6/src/backend/src/
+    das binary für den mavsdk_server. Dieses binary muss man auf den pi kopieren, und 
+    zwar in das MAVSDK-Python repository unter mavsdk/bin/
+
+4. Testen des Servers auf dem Py: Ins Server-Verzeichnis wechseln und den Server mit 
+> ./mavsdk_server serial:///dev/serial0:921600
+starten. 
+
+5. Verwenden der MavSDK, um mittels Mavlink mit dem PX4 zu sprechen:
+    -> Damit man mit dem PX4 sprechen kann, muss der mavsdk_server laufen (Siehe Punkt 4)
+    -> der Python Code, der verwendet wird, um auf den Server zuzugreifen: 
+        drone = System(mavsdk_server_address="localhost", port=46011)
+        await drone.connect()
+
+        Der Port wechselt bei jedem Start des mavsdk_server, also immer anpassen. Der Port
+        ist im log ersichtlich. Wichtig ist, dass dieser Code genau so verwendet wird!
+        Herausgefunden dank: https://github.com/mavlink/MAVSDK-Python/issues/156
+
+Grundsätzlich funktioniert das so, dass der mavsdk_server läuft und ein definiertes
+Interface überwacht (/dev/serial0 in unserem Fall). Sobald ein Gerät sich über Dieses
+Interface verbindet, notifiziert der server alle Programme, welche zuhören. Diese Programmes
+sind zum Beispiel python-Files.
+
+
+###############
+# Random notes#
+###############
+
+- List all serial Ports auf dem raspberrypi:
+> ls /dev/tty*
+
+- mavlink-shell starten, um von Pi auf PX4 zuzugreifen (mavlink_shell.py file von https://github.com/PX4/Firmware/blob/master/Tools/mavlink_shell.py)
+> python3 mavlink_shell.py /dev/serial0 --baudrate 921600 (Im Verzeichnis /home/pi)
+
+- Ausschalten von RC für Setup: 
+COM_RC_IN_MODE Parameter verändern
+
+- Firmware builden für unseren PX4 und flashen (in Firmware directory): 
+make px4_fmu-v3_default upload
+    -> File welches alle Parameter enthält: Firmware/builds/px4_fmu-v3_default/parameters.xml
+
+- Prerequisites für Mavlink und Mavproxy: 
+sudo apt-get install python-dev python-opencv python-wxgtk3.0 python-pip python-matplotlib python-pygame python-lxml python-yaml
+    -> Könnte evtl. noch etwas anderes installieren (Ubuntu, dann alles mit python3)
+
+- Video für Setup Mavproxy: https://www.youtube.com/watch?v=DGAB34fJQFc&feature=youtu.be
+
+- Befehl um MAVLink connection zu starten (home Verzeichnis):
+sudo -s
+mavproxy.py --baudrate=921600 --aircraft="drone" --quadcopter
+ 
+- Noise aus mavproxy-Terminal ausblenden: 
+set shownoise False 
+
+- LINK Für aufsetzen mavsdk mit Rpi:
+https://discuss.px4.io/t/talking-to-a-px4-fmu-with-a-rpi-via-serial-nousb-ardunope/14119
+
+- Docker-installieren:
+curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
+
+
