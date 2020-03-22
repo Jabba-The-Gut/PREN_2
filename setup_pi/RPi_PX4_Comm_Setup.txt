@@ -91,4 +91,7 @@ https://discuss.px4.io/t/talking-to-a-px4-fmu-with-a-rpi-via-serial-nousb-arduno
 - Docker-installieren:
 curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
 
+- RabbitMQ-Web-Konsole Zugriff:
+http://{ip-address-pi}:15672/
+
 
