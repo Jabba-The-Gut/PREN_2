@@ -23,16 +23,20 @@ Der serielle Port vom Pi ist nachher unter /dev/serial0 ansprechbar
 	    > source pren_venv/bin/activate (virtual env aktivieren)
     - mavsdk_server builden (auf Mac): https://mavsdk.mavlink.io/develop/en/contributing/build.html#cross_compilation_dockcross
         -> mittels dockcross. Damit die commands funktionieren, muss docker installiert werden
-        -> zudem muss docker run --rm dockcross/linux-armv7 > ./dockcross-linux-armv7 
-        abgeändert werden in docker run --rm dockcross/linux-armv6 > ./dockcross-linux-armv6. 
+        -> zudem muss "docker run --rm dockcross/linux-armv7 > ./dockcross-linux-armv7"
+        abgeändert werden in "docker run --rm dockcross/linux-armv6 > ./dockcross-linux-armv6". 
         Denn der PiZero hat eine linux-armv6 Architektur
+	-> des Weiteren muss "./dockcross-linux-armv7 cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_BACKEND=ON -DBUILD_SHARED_LIBS=OFF -Bbuild/linux-armv7 -S.
+	" geändert werden in ./dockcross-linux-armv6 cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_BACKEND=ON -DBUILD_SHARED_LIBS=OFF -Bbuild/linux-armv6 .
+	--> Und "./dockcross-linux-armv7 cmake --build build/linux-armv7 -j 8
+	" muss geändert werden in "./dockcross-linux-armv6 cmake --build build/linux-armv6 -j 8"
     - sobald die cross compilation fertig ist, findet man im Verzeichnis 
     /Users/jabbathegut/repositories/MAVSDK/build/linux-armv6/src/backend/src/
     das binary für den mavsdk_server. Dieses binary muss man auf den pi kopieren, und 
     zwar in das MAVSDK-Python repository unter mavsdk/bin/
 
 4. Testen des Servers auf dem Py: Ins Server-Verzeichnis wechseln und den Server mit 
-> ./mavsdk_server serial:///dev/serial0:921600
+> ./mavsdk_server serial:///dev/serial0:115200
 starten. 
 
 5. Verwenden der MavSDK, um mittels Mavlink mit dem PX4 zu sprechen:
@@ -59,7 +63,7 @@ sind zum Beispiel python-Files.
 > ls /dev/tty*
 
 - mavlink-shell starten, um von Pi auf PX4 zuzugreifen (mavlink_shell.py file von https://github.com/PX4/Firmware/blob/master/Tools/mavlink_shell.py)
-> python3 mavlink_shell.py /dev/serial0 --baudrate 921600 (Im Verzeichnis /home/pi)
+> python3 mavlink_shell.py /dev/serial0 --baudrate 9600 (Im Verzeichnis /home/pi)
 
 - Ausschalten von RC für Setup: 
 COM_RC_IN_MODE Parameter verändern
