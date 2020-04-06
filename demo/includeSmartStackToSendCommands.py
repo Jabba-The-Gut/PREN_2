@@ -141,7 +141,7 @@ class SimulatedDrone:
 
             await self.drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(0.0, 0.0, -1.0, 0.0))
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
             height = False
         i = 0
         while(i < self.s.cp.stack.buf.__len__()):
