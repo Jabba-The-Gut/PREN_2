@@ -100,9 +100,8 @@ class Simulation:
         if self.send_data:
             start_time = time.time()
             for i in range (100):
-                print(self.getRandom())
                 s = self.cp.evaluate_relevant_data((self.getRandom(), self.getRandom(), self.getRandom()))
-            end_time = time.time()
+                end_time = time.time()
             print(self.cp.stack.buf)
 
         else:
