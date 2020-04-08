@@ -6,11 +6,14 @@ from mavsdk import System
 from mavsdk import (OffboardError, PositionNedYaw, VelocityBodyYawspeed)
 import json
 
+drone = System()
+
 HEIGHT_TO_FLIGHT_MIN = 90
 HEIGHT_TO_FLIGHT_MAX = 110
 MAX_RIGHT_DISTANCE = 30
 MIN_RIGHT_DISTANCE = 10
-MIN_FRONT_DISTANCE = 10
+MIN_FRONT_DISTANCE = 40
+
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost'))
@@ -21,8 +24,7 @@ channel.exchange_declare(exchange='main', exchange_type='topic')
 logicQueue = channel.queue_declare('logic', exclusive=False)
 queue_name = logicQueue.method.queue
 
-loggerQueue = channel.queue_declare('log', exclusive=False)
-queue_name = loggerQueue.method.queue
+routingKey_log = "log"
 
 binding_key = '#.logic.#'
 
@@ -36,6 +38,10 @@ def callback(ch, method, properties, body):
     # print(" [x] %r:%r" % (method.routing_key, body))
     generateCommandsForDrone(body)
 
+def log(message):
+    print(message)
+    channel.basic_publish(
+        exchange='main', routing_key=routingKey_log, body=message)
 
 def generateCommandsForDrone(sensorData):
     height = json.loads(sensorData)["height"]
@@ -47,24 +53,29 @@ def generateCommandsForDrone(sensorData):
     sideState = checkSideState(sensor_side)
 
     if(heightState == 2 and frontState == 2 and sideState == 2):
-        print("going strait forward")
+        log("VelocityBodyYawspeed(4.0, 0.0, 0.0, 0)")
+        log("await asyncio.sleep(0.25)")
     else:
         if(heightState == 0):
-            print("go up")
+            log("VelocityBodyYawspeed(0.0, 0.0, -0.4, 0)")
+            log("await asyncio.sleep(0.25)")
         elif (heightState == 1):
-            print("go down")
-        elif (heightState == 2):
-            print("do nothing with height")
-            if(frontState == 1):
-                print("turn right")
+            log("VelocityBodyYawspeed(0.0, 0.0, 0.4, 0)")
+            log("await asyncio.sleep(0.25)")
+        else:
+            if (frontState == 1):
+                log("VelocityBodyYawspeed(0.0, 0.0, 0.0, 360)")
+                log("await asyncio.sleep(0.25)")
             else:
-                print("go forward")
                 if(sideState == 0):
-                    print("go left")
+                    log("VelocityBodyYawspeed(4.0, 0.4, 0.0, 0)")
+                    log("await asyncio.sleep(0.25)")
                 elif(sideState == 0):
-                    print("go right")
+                    log("VelocityBodyYawspeed(4.0, -0.4, 0.0, 0)")
+                    log("await asyncio.sleep(0.25)")
                 else:
-                    print("stay there")
+                    log("VelocityBodyYawspeed(4.0, 0.0, 0.0, 0)")
+                    log("await asyncio.sleep(0.25)")
 
 #Return 0 means to low, return 1 means to hight, return 2 means ok
 def checkHeightState(height):
@@ -111,3 +122,4 @@ async def takeoff(self):
         print("-- Disarming")
         await self.drone.action.disarm()
         return
+
