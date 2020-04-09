@@ -280,6 +280,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Sample
+.DS_Store
+
 # End of https://www.gitignore.io/api/git,linux,macos,python,pycharm,windows
 
 
