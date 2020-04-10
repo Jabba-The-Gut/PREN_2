@@ -1,3 +1,4 @@
+import random
 import threading
 import time
 
@@ -7,12 +8,18 @@ from project.services.const import const
 
 class DataProcessingConsumer:
     """
-    This class is used to consume messages from its queue. It is
-    a separate class because the start_consuming() method is blocking. This way,
-    it can be outsourced to a different thread so the service can proceed
+    This class is used to consume messages from its queue. It uses polling to fetch messages
+    with basic_get. This is some kind of hack, because the blocking character of start_consuming just
+    caused problems...
     """
 
-    def __init__(self):
+    def __init__(self, data_processing_service):
+        """
+        Initialize connection for consuming messages
+        :param data_processing_service: service of type DataProcessingService
+        """
+        # declare service
+        self.service = data_processing_service
         # setup connection details
         self._connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
         self._channel = self._connection.channel()
@@ -20,36 +27,39 @@ class DataProcessingConsumer:
         self._channel.exchange_declare(exchange=const.EXCHANGE, exchange_type='topic')
         # declare queue
         self._channel.queue_declare(const.DATA_PROCESSING_QUEUE_NAME, exclusive=False)
-
         # create binding
         self._channel.queue_bind(
             exchange=const.EXCHANGE, queue=const.DATA_PROCESSING_QUEUE_NAME,
             routing_key=const.DATA_PROCESSING_BINDING_KEY
         )
+        self.service = data_processing_service
 
-    def __enter__(self):
-        return self
+        # start the consuming of the messages
+        thread = threading.Thread(target=self.run, args=(), daemon=True)
+        thread.start()
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._connection.close()
-
-    def start_consuming(self, callback):
+    def run(self):
         """
-        Start consuming messages, this method never exits
+        Polls the queue for the data processing service, if there are any messages, pass it to the service
         :return: None
         """
-        self._channel.basic_consume(
-            queue=const.DATA_PROCESSING_QUEUE_NAME, on_message_callback=callback, auto_ack=True
-        )
-        self._channel.start_consuming()
+        while True:
+            # if you set passive to true, you just check the status of the queue and get information about it
+            check_queue = self._channel.queue_declare(queue=const.DATA_PROCESSING_QUEUE_NAME, passive=True)
+
+            # just try to consume messages, if there are any
+            if check_queue.method.message_count > 0:
+                message = self._channel.basic_get(const.DATA_PROCESSING_QUEUE_NAME)
+                # acknowledge it, because if not it stays in the queue
+                self._channel.basic_ack(message[0].delivery_tag)
+                self.service.handle_message(message[1], message[2])
 
 
 class DataProcessingService:
 
     def __init__(self):
-        self._sensor_working = False
-        self._init_done = False
-        self._logic_ready = False
+        self._px_4_working = False
+        self._mavsdk_working = False
         self._blocked = False
 
         # setup connection details
@@ -83,63 +93,48 @@ class DataProcessingService:
         """
         self._blocked = False
 
-    def handle_message(self, channel, method, properties, message):
+    def handle_message(self, properties, message):
         """
         Handles incoming messages from the consumer object
         :param properties: properties of the message
         :param message: message content
         :return: None
         """
-        print("received message %r %r %r %r" % (channel, method, properties, message))
+        print("received message %r" % message)
 
-    def start_consumer(self):
+    def get_sensor_values(self):
         """
-        Starts the consuming of messages using a consumer object in a different thread
-        :return: None
+        Get sensor valeus from tinyK22
+        :return:
         """
-
-        # callback method if consumer receives message
-        def callback(channel, method, properties, body):
-            self.handle_message(channel, method, properties, body)
-
-        with DataProcessingConsumer() as consumer:
-            consumer.start_consuming(callback=callback)
-
-    def check_sensors(self):
-        """
-        Check if sensors are working
-        :return: True if working, false if not
-        """
-        NotImplementedError
+        return random.randint(20, 100)
 
     def run(self):
         """
         This is the core method of the data service. It contains the main logic
         :return: None
         """
+        # i need to check the last X values, if they all were negative, the sensor is fucked
+        sensor_values = []
         while True:
-            if self._logic_ready and self._init_done:
-                if self.check_sensors():
-                    comment = "Get sensor data and publish it"
-                    print(comment)
-                else:
-                    comment = "Publish that sensors are fucked"
-                    print(comment)
+            if self._mavsdk_working and self._px_4_working and not self._blocked:
+                print("Got sensor data: %r" % self.get_sensor_values())
+                # wenn sensor daten scheisse sind, dann bekomme ich von Frank -1.
+
 
             # This value is just for testing purposes
             time.sleep(1)
-
 
 def main():
     # start our data processing service
     service = DataProcessingService()
 
-    # create consumer object with callback to data processing service, but on another thread thus not blocking
-    consumer_thread = threading.Thread(target=service.start_consumer())
-    consumer_thread.start()
+    # create consumer
+    DataProcessingConsumer(service)
 
-    # let's start the magic
+    # start logic
     service.run()
+
 
 if __name__ == '__main__':
     main()
