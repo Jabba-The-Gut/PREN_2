@@ -4,6 +4,8 @@ import time
 
 import pika
 from project.services.const import const
+from project.services.data_processing.i2c import I2cReader
+from project.services.data_processing.ring_buffer import RingBuffer
 
 
 class DataProcessingConsumer:
@@ -62,6 +64,9 @@ class DataProcessingService:
         self._mavsdk_working = False
         self._blocked = False
 
+        # reference to sensor data class
+        self.sensor_data = I2cReader()
+
         # setup connection details
         self._connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
         self._connection.add_on_connection_blocked_callback(callback=self.connection_blocked)
@@ -102,28 +107,35 @@ class DataProcessingService:
         """
         print("received message %r" % message)
 
-    def get_sensor_values(self):
-        """
-        Get sensor valeus from tinyK22
-        :return:
-        """
-        return random.randint(20, 100)
-
     def run(self):
         """
         This is the core method of the data service. It contains the main logic
         :return: None
         """
-        # i need to check the last X values, if they all were negative, the sensor is fucked
-        sensor_values = []
+        # i need to check the error flag of the last 5 values
+        buffer = RingBuffer(5)
+
         while True:
             if self._mavsdk_working and self._px_4_working and not self._blocked:
-                print("Got sensor data: %r" % self.get_sensor_values())
-                # wenn sensor daten scheisse sind, dann bekomme ich von Frank -1.
+                sensor_values = self.sensor_data.read_values()
+                # append the error flag to the buffer
+                buffer.append(sensor_values["error"])
 
+                if sum(buffer.get()) == -5:
+                    # publish to status value that we have an error in sensor values
+                    self._channel.basic_publish(
+                        exchange=const.EXCHANGE, routing_key="TOBEIMPLEMENTED", body="Sensor ERROR",
+                        properties=pika.BasicProperties(headers=const.DATA_PROCESSING_HEADER_NAME))
+                else:
+                    del sensor_values["error"]
+                    # publish values to logic module
+                    self._channel.basic_publish(
+                        exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY, body=sensor_values,
+                        properties=pika.BasicProperties(headers="test"))
 
-            # This value is just for testing purposes
-            time.sleep(1)
+            # This value has to be defined
+            time.sleep(0.5)
+
 
 def main():
     # start our data processing service
