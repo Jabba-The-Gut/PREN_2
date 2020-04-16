@@ -17,6 +17,8 @@ LOGIC_QUEUE_NAME = "logic"
 LOGIC_BINDING_KEY = "#.logic.#"
 
 # status constants
+STATUS_QUEUE_NAME = "status"
+STATUS_BINDING_KEY = "#.status.#"
 
 # init constants
 
