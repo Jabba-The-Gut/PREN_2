@@ -1,0 +1,8 @@
+-i https://pypi.org/simple
+aiogrpc==1.7
+grpcio==1.28.1
+mavsdk==0.6.1
+pika==1.1.0
+protobuf==3.11.3
+six==1.14.0
+smbus2==0.3.0
