@@ -31,8 +31,8 @@ class I2cReader:
         values[1] = (data[2] << 8) + data[3]  # distance side
         values[2] = (data[4] << 8) + data[5]  # distance ground
 
-        if -1 in values:
-            values[3] = -1
+        if 0 in values:
+            values[3] = 0
 
         sensor_values["front"] = values[0]
         sensor_values["side"] = values[1]
