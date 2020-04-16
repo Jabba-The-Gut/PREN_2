@@ -121,7 +121,7 @@ class DataProcessingService:
                 # append the error flag to the buffer
                 buffer.append(sensor_values["error"])
 
-                if sum(buffer.get()) == -5:
+                if sum(buffer.get()) == 0:  # we get an 0 if on of the sensors has an error
                     # publish to status value that we have an error in sensor values
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key="TOBEIMPLEMENTED", body="Sensor ERROR",
