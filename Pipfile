@@ -8,7 +8,7 @@ verify_ssl = true
 [packages]
 mavsdk = "*"
 pika = "*"
-smmbus2 = "*"
+smbus2 = "*"
 
 [requires]
 python_version = "3.8"
