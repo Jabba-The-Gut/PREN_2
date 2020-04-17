@@ -21,6 +21,8 @@ STATUS_QUEUE_NAME = "status"
 STATUS_BINDING_KEY = "#.status.#"
 
 # init constants
+INIT_QUEUE_NAME = "init"
+INIT_BINDING_KEY = "#.init.#"
 
 # module name to put in header
 LOGIC_HEADER_NAME = "logic"
