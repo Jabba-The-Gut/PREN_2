@@ -20,5 +20,8 @@ LOGIC_BINDING_KEY = "#.logic.#"
 STATUS_QUEUE_NAME = "status"
 STATUS_BINDING_KEY = "#.status.#"
 
+STATUS_DATA_PROC_PX4_FLAG_TRUE  = "data_processing: __px4_running True"
+STATUS_DATA_PROC_PX4_FLAG_FALSE = "data_processing: __px4_running False"
+
 # init constants
 

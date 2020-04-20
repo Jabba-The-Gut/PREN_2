@@ -1,32 +1,54 @@
 import pika
 from project.services.const import const
 
-# Variables that keep track of the various important statuses. (i.e. Memory, PX4, Sensor, System)
-__memory_ok = True
-__px4_running = True
-__sensor_ok = True
-__system_ok = True
+px4_running = False
+system_ok   = False
 
 
-# mutator methods for other services to write to the above status flags
-def change_memory_status(new_status : bool) -> None:
-    global __memory_ok
-    __memory_ok = new_status
+# Internal flags for this module to evaluate the system_ok flag
+
+__logic_service = 0
+__data_processing_service = 0
+__init_service = 0
+__logging_service = 0
+
+# Callback method
 
 
-def change_px4_status (new_status : bool) -> None:
-    global __px4_running
-    __px4_running = new_status
+def evaluate_status_flags(ch, method, properties, body):
+    if str(body).__contains__(const.STATUS_DATA_PROC_PX4_FLAG_TRUE):
+        print("PX4 is running and the data processing service is running")
+        global px4_running
+        px4_running = True
+    elif str(body).__contains__(const.STATUS_DATA_PROC_PX4_FLAG_FALSE):
+        print("PX4 not running data processing should stop")
+        global px4_running
+        px4_running = False
+    else:
+        print("Default")
+
+    global system_ok, px4_running, __data_processing_service
+    __data_processing_service = 1
+    system_ok = px4_running and (__data_processing_service == 1) # Will add other flags to this evaluation when necessary
+    channel.exchange_declare(exchange=const.EXCHANGE, exchange_type='topic')
+
+    channel.queue_declare(const.LOGIC_QUEUE_NAME, exclusive=False)
+
+    channel.queue_bind(
+        exchange='main', queue=const.LOGIC_QUEUE_NAME, routing_key=const.LOGIC_QUEUE_NAME
+    )
+
+    message_body = "{0}".format(system_ok)
+
+    channel.basic_publish(
+        exchange=const.EXCHANGE,
+        routing_key=const.LOGIC_QUEUE_NAME,
+        body=message_body
+    )
 
 
-def change_sensor_status(new_status : bool) -> None:
-    global __sensor_ok
-    __sensor_ok = new_status
 
-
-def change_system_status(new_status : bool) -> None:
-    global __system_ok
-    __system_ok = new_status
+# Basic initialization of the rabbitMQ backend
 
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
@@ -41,7 +63,9 @@ channel.queue_bind(
     exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_QUEUE_NAME
 )
 
-to_publish = "Memory Status {0}, PX4 Status {1}, Sensor Status {2}, System Status {3}".format(__memory_ok, __px4_running, __sensor_ok, __system_ok)
-channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY, body=to_publish)
-print(" [x] Sent %r" % to_publish)
+channel.basic_consume(
+    queue=const.STATUS_QUEUE_NAME, on_message_callback=evaluate_status_flags, auto_ack=True
+)
+print("Status Module running and waiting on messages to relay...")
+channel.start_consuming()
 connection.close()
