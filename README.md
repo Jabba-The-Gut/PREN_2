@@ -25,6 +25,7 @@ The project consists of folders for the different parts. **Never** is a file jus
     /demo: This folder is used to store all demo files 
     /images: This folder is used to store all project related images
     /project: This is the main folder that hosts all the code 
+    /documents: Contains project related documents
 
 ### Git 
 There are some basic rules that should be common sense, nevertheless here are the most important ones
