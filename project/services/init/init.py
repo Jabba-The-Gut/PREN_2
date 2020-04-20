@@ -22,13 +22,13 @@ async def run():
     )
     # log that connection to RabbitMQ was successful
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                          body="init : successfully connected to rabbitmq")
+                          body="init:successfully connected to rabbitmq")
 
     # start the mavsdk-backend (on localhost) and connect to it
     system = System()
     await system.connect()
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                          body="init : successfully connected to local mavsdk backend")
+                          body="init:successfully connected to local mavsdk backend")
 
     # loop through all connections and get the first that is connected
     # --> Must be our drone, because there are no other peripherals
@@ -36,7 +36,7 @@ async def run():
         if state.is_connected:
             break
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                          body=str.format("init : drone with UUID %r connected" % await system.info.get_version()))
+                          body=str.format("init:drone with UUID %r connected" % await system.info.get_version()))
 
     # now we try to arm the drone
     possible_to_arm = False
@@ -46,23 +46,23 @@ async def run():
             possible_to_arm = True
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
-                                      "init : drone with UUID %r connected" % await system.info.get_version()))
+                                      "init:drone with UUID %r connected" % await system.info.get_version()))
             await system.action.disarm()
             break
         except Exception as error:
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
-                                      "init : failed to arm drone: %r " % error))
+                                      "init:failed to arm drone: %r " % error))
             # try to arm every 5 seconds
             await asyncio.sleep(5)
 
     # log that arming was successful
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                          body="init : arming test was successful")
+                          body="init:arming test was successful")
 
     # publish the __px4_running flag to the status module
-    channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                          body="init: __px4_running True")
+    channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+                          body="init:__px4_running:True")
 
 
 def main():

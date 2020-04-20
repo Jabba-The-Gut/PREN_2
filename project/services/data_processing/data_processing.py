@@ -45,8 +45,8 @@ class DataProcessingConsumer:
         Polls the queue for the data processing service, if there are any messages, pass it to the service
         :return: None
         """
-        self._channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
-                                    body="data_processing : started to listen for status flags")
+        self._channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                                    body="data_processing:started to listen for status flags")
         while True:
             # if you set passive to true, you just check the status of the queue and get information about it
             check_queue = self._channel.queue_declare(queue=const.DATA_PROCESSING_QUEUE_NAME, passive=True)
@@ -85,8 +85,8 @@ class DataProcessingService:
             routing_key=const.DATA_PROCESSING_BINDING_KEY
         )
 
-        self._channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
-                                    body="data_processing : successfully connected to rabbitmq")
+        self._channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                                    body="data_processing:successfully connected to rabbitmq")
 
     def connection_blocked(self):
         """
@@ -109,10 +109,13 @@ class DataProcessingService:
         :param message: message content
         :return: None
         """
-        if message.__eq__("status : __px4_running True"):
-            self._px4_working = True
-        elif message.__contains__("status : __px4_running"):
-            self._px4_working = False
+        message_parts = message.split(":")
+
+        if len(message_parts) == 1:
+            self._px4_working = False  # we expect a message with a flag, not just payload
+        elif len(message_parts) == 2 and message_parts[1].__eq__("__px_running"):
+            if message_parts[2].__eq__("True"):
+                self._px4_working = True
         else:
             self._px4_working = False
 
@@ -135,14 +138,17 @@ class DataProcessingService:
                 if sum(buffer.get()) == 0 and values_asked_for > 5:  # we get an 0 if one of the sensors has an error
                     # publish to status value that we have an error in sensor values
                     self._channel.basic_publish(
-                        exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY, body="data_processing : sensor "
+                        exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY, body="data_processing:sensor "
                                                                                             "error")
                 else:
                     del sensor_values["error"]
                     # publish values to logic module
                     self._channel.basic_publish(
+                        exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
+                        body=str.format("data_processing:%r" % sensor_values))
+                    self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                        body=str.format("data_processing : values %r" % sensor_values))
+                        body=str.format("data_processing:%r" % sensor_values))
 
             # This value has to be defined
             time.sleep(1.0)
