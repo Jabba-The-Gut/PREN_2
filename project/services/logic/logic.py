@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-import asyncio
 
 import pika
 from mavsdk import System
-from mavsdk import (OffboardError, PositionNedYaw, VelocityBodyYawspeed)
+from mavsdk import (OffboardError, PositionNedYaw)
 import json
-from project.services.const import const
+from project.const import const
 
 drone = System()
 

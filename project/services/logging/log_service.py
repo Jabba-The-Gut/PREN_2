@@ -1,19 +1,19 @@
 import pika
 from datetime import datetime
-from project.services.const import const
+from project.const import const
+
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
 channel = connection.channel()
 channel.exchange_declare(exchange=const.EXCHANGE, exchange_type='topic')
 
 result = channel.queue_declare(const.LOG_QUEUE_NAME, exclusive=False)
 
-binding_key = '#.log.#'
-
 channel.queue_bind(
-    exchange='main', queue=const.LOG_QUEUE_NAME, routing_key=const.LOG_QUEUE_NAME
+    exchange='main', queue=const.LOG_QUEUE_NAME, routing_key=const.LOG_BINDING_KEY
 )
 
 print(' [*] Waiting for logs. To exit press CTRL-C')
+
 
 def callback(ch, method, properties, body):
     print(" [x] %r:%r" % (method.routing_key, body))
@@ -28,7 +28,6 @@ def callback(ch, method, properties, body):
         to_write = str(current) + " " + str(body)
         file.write(str(to_write))
         file.close()
-
 
 
 channel.basic_consume(

@@ -1,9 +1,8 @@
-import random
 import threading
 import time
 
 import pika
-from project.services.const import const
+from project.const import const
 from project.services.data_processing.i2c import I2cReader
 from project.services.data_processing.ring_buffer import RingBuffer
 
@@ -54,13 +53,13 @@ class DataProcessingConsumer:
                 message = self._channel.basic_get(const.DATA_PROCESSING_QUEUE_NAME)
                 # acknowledge it, because if not it stays in the queue
                 self._channel.basic_ack(message[0].delivery_tag)
-                self.service.handle_message(message[1], message[2])
+                self.service.handle_message(message[1])
 
 
 class DataProcessingService:
 
     def __init__(self):
-        self._px_4_working = False
+        self._px_4_working = False # use according flags received from the status module
         self._mavsdk_working = False
         self._blocked = False
 
@@ -100,12 +99,13 @@ class DataProcessingService:
 
     def handle_message(self, properties, message):
         """
-        Handles incoming messages from the consumer object
+        Handles incoming messages from the consumer object.
+        Currently we only care about status messages, so we ignore everything else
         :param properties: properties of the message
         :param message: message content
         :return: None
         """
-        print("received message %r" % message)
+        print("received message %r, %r" % (message, properties))
 
     def run(self):
         """

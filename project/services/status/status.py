@@ -1,5 +1,5 @@
 import pika
-from project.services.const import const
+from project.const import const
 
 # Variables that keep track of the various important statuses. (i.e. Memory, PX4, Sensor, System)
 __memory_ok = True
