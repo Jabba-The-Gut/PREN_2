@@ -24,10 +24,4 @@ STATUS_BINDING_KEY = "#.status.#"
 INIT_QUEUE_NAME = "init"
 INIT_BINDING_KEY = "#.init.#"
 
-# module name to put in header
-LOGIC_HEADER_NAME = "logic"
-LOG_HEADER_NAME = "log"
-STATUS_HEADER_NAME = "status"
-INIT_HEADER_NAME = "init"
-DATA_PROCESSING_HEADER_NAME = "data_processing"
 

@@ -1,3 +1,4 @@
+import asyncio
 import threading
 import time
 
@@ -44,6 +45,8 @@ class DataProcessingConsumer:
         Polls the queue for the data processing service, if there are any messages, pass it to the service
         :return: None
         """
+        self._channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
+                                    body="data_processing : started to listen for status flags")
         while True:
             # if you set passive to true, you just check the status of the queue and get information about it
             check_queue = self._channel.queue_declare(queue=const.DATA_PROCESSING_QUEUE_NAME, passive=True)
@@ -53,14 +56,13 @@ class DataProcessingConsumer:
                 message = self._channel.basic_get(const.DATA_PROCESSING_QUEUE_NAME)
                 # acknowledge it, because if not it stays in the queue
                 self._channel.basic_ack(message[0].delivery_tag)
-                self.service.handle_message(message[1])
+                self.service.handle_message(message[2])
 
 
 class DataProcessingService:
 
     def __init__(self):
-        self._px_4_working = False # use according flags received from the status module
-        self._mavsdk_working = False
+        self._px4_working = False
         self._blocked = False
 
         # reference to sensor data class
@@ -83,6 +85,9 @@ class DataProcessingService:
             routing_key=const.DATA_PROCESSING_BINDING_KEY
         )
 
+        self._channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
+                                    body="data_processing : successfully connected to rabbitmq")
+
     def connection_blocked(self):
         """
         Get's called once connection is blocked
@@ -97,44 +102,50 @@ class DataProcessingService:
         """
         self._blocked = False
 
-    def handle_message(self, properties, message):
+    def handle_message(self, message):
         """
         Handles incoming messages from the consumer object.
         Currently we only care about status messages, so we ignore everything else
-        :param properties: properties of the message
         :param message: message content
         :return: None
         """
-        print("received message %r, %r" % (message, properties))
+        if message.__eq__("status : __px4_running True"):
+            self._px4_working = True
+        elif message.__contains__("status : __px4_running"):
+            self._px4_working = False
+        else:
+            self._px4_working = False
 
     def run(self):
         """
         This is the core method of the data service. It contains the main logic
         :return: None
         """
+        values_asked_for = 0
         # i need to check the error flag of the last 5 values
         buffer = RingBuffer(5)
 
         while True:
-            if self._mavsdk_working and self._px_4_working and not self._blocked:
+            values_asked_for += 1
+            if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
                 # append the error flag to the buffer
                 buffer.append(sensor_values["error"])
 
-                if sum(buffer.get()) == 0:  # we get an 0 if on of the sensors has an error
+                if sum(buffer.get()) == 0 and values_asked_for > 5:  # we get an 0 if one of the sensors has an error
                     # publish to status value that we have an error in sensor values
                     self._channel.basic_publish(
-                        exchange=const.EXCHANGE, routing_key="TOBEIMPLEMENTED", body="Sensor ERROR",
-                        properties=pika.BasicProperties(headers=const.DATA_PROCESSING_HEADER_NAME))
+                        exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY, body="data_processing : sensor "
+                                                                                            "error")
                 else:
                     del sensor_values["error"]
                     # publish values to logic module
                     self._channel.basic_publish(
-                        exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY, body=sensor_values,
-                        properties=pika.BasicProperties(headers="test"))
+                        exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                        body=str.format("data_processing : values %r" % sensor_values))
 
             # This value has to be defined
-            time.sleep(0.5)
+            time.sleep(1.0)
 
 
 def main():
