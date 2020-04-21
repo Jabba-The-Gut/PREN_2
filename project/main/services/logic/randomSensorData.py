@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+
 from random import randint
 
 import pika
 import sys
 import array as arr
 import json
+import time
+import asyncio
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost'))
@@ -26,6 +29,7 @@ while(x<15):
         "sensor_front": arraySensorFront[x],
         "sensor_right": arraySensorRight[x]
     }
+    time.sleep(1)
     channel.basic_publish(
         exchange='main', routing_key=routing_key, body=json.dumps(message))
     print(" [x] Sent %r:%r" % (routing_key, json.dumps(message)))
