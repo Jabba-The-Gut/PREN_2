@@ -25,6 +25,12 @@ MIN_FRONT_DISTANCE = 40
 STATUS_QUEUE_NAME = "status"
 STATUS_BINDING_KEY = "#.status.#"
 
+STATUS_INIT_PX4_FLAG_TRUE  = "init: __px4_running: True"
+STATUS_INIT_PX4_STATUS_FALSE = "init: __px4_running: False"
+STATUS_COMMANDS_UNSUCCESSFUL = "logic: __px4_running: False"
+# This is temporary string need to change it
+STATUS_DATAPROC_MODULE_FLAG_TRUE  = "data_processing: MODULE_FLAG: True"
+STATUS_DATAPROC_MODULE_FLAG_FALSE  = "data_processing: MODULE_FLAG: False"
 # init constants
 INIT_QUEUE_NAME = "init"
 INIT_BINDING_KEY = "#.init.#"
