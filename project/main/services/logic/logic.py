@@ -4,7 +4,7 @@ import pika
 from mavsdk import System
 from mavsdk import (OffboardError, PositionNedYaw)
 import json
-from project.const import const
+import const
 
 drone = System()
 

@@ -1,11 +1,10 @@
-import asyncio
 import threading
 import time
 
 import pika
-from project.const import const
-from project.services.data_processing.i2c import I2cReader
-from project.services.data_processing.ring_buffer import RingBuffer
+from main.const import const
+from main.services.data_processing import i2c
+from main.services.data_processing import ring_buffer
 
 
 class DataProcessingConsumer:
@@ -66,7 +65,7 @@ class DataProcessingService:
         self._blocked = False
 
         # reference to sensor data class
-        self.sensor_data = I2cReader()
+        self.sensor_data = i2c.I2cReader()
 
         # setup connection details
         self._connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
@@ -109,11 +108,11 @@ class DataProcessingService:
         :param message: message content
         :return: None
         """
-        message_parts = message.split(":")
+        message_parts = message.decode('utf8').split(":")
 
-        if len(message_parts) == 1:
+        if len(message_parts) == 2:
             self._px4_working = False  # we expect a message with a flag, not just payload
-        elif len(message_parts) == 2 and message_parts[1].__eq__("__px_running"):
+        elif len(message_parts) == 3 and message_parts[1].__eq__("__px4_running"):
             if message_parts[2].__eq__("True"):
                 self._px4_working = True
         else:
@@ -126,7 +125,7 @@ class DataProcessingService:
         """
         values_asked_for = 0
         # i need to check the error flag of the last 5 values
-        buffer = RingBuffer(5)
+        buffer = ring_buffer.RingBuffer(5)
 
         while True:
             values_asked_for += 1
@@ -151,7 +150,7 @@ class DataProcessingService:
                         body=str.format("data_processing:%r" % sensor_values))
 
             # This value has to be defined
-            time.sleep(1.0)
+            time.sleep(0.01)
 
 
 def main():
@@ -163,7 +162,3 @@ def main():
 
     # start logic
     service.run()
-
-
-if __name__ == '__main__':
-    main()

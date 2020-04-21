@@ -1,6 +1,6 @@
 import pika
 from datetime import datetime
-from project.const import const
+import const
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
 channel = connection.channel()

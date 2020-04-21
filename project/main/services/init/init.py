@@ -2,7 +2,7 @@ import asyncio
 
 import pika
 from mavsdk import System
-from project.const import const
+from main.const import const
 
 
 # that this service runs means that other things such
@@ -68,7 +68,3 @@ async def run():
 def main():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run())
-
-
-if __name__ == "__main__":
-    main()
