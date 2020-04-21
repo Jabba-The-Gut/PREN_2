@@ -7,10 +7,9 @@ channel.exchange_declare(exchange=const.EXCHANGE, exchange_type='topic')
 
 result = channel.queue_declare(const.LOG_QUEUE_NAME, exclusive=False)
 
-binding_key = '#.log.#'
 
 channel.queue_bind(
-    exchange='main', queue=const.LOG_QUEUE_NAME, routing_key=const.LOG_QUEUE_NAME
+    exchange='main', queue=const.LOG_QUEUE_NAME, routing_key=const.LOG_BINDING_KEY
 )
 
 print(' [*] Waiting for logs. To exit press CTRL-C')

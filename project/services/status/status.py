@@ -38,7 +38,7 @@ result = channel.queue_declare(const.STATUS_QUEUE_NAME, exclusive=False)
 binding_key = const.STATUS_BINDING_KEY
 
 channel.queue_bind(
-    exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_QUEUE_NAME
+    exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_BINDING_KEY
 )
 
 to_publish = "Memory Status {0}, PX4 Status {1}, Sensor Status {2}, System Status {3}".format(__memory_ok, __px4_running, __sensor_ok, __system_ok)
