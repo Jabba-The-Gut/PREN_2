@@ -36,16 +36,16 @@ class I2cReader:
             if 0 in values:
                 values[3] = 0
 
-            sensor_values["front"] = values[0]
-            sensor_values["side"] = values[1]
-            sensor_values["ground"] = values[2]
+            sensor_values["sensor_front"] = values[0]
+            sensor_values["sensor_right"] = values[1]
+            sensor_values["height"] = values[2]
             sensor_values["error"] = values[3]
 
             return sensor_values
         except Exception:
-            sensor_values["front"] = 0
-            sensor_values["side"] = 0
-            sensor_values["ground"] = 0
+            sensor_values["sensor_front"] = 0
+            sensor_values["sensor_right"] = 0
+            sensor_values["height"] = 0
             sensor_values["error"] = 0
 
             return sensor_values

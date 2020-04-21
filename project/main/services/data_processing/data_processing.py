@@ -144,7 +144,7 @@ class DataProcessingService:
                     # publish values to logic module
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
-                        body=str.format("data_processing:%r" % sensor_values))
+                        body=str.format(sensor_values))
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                         body=str.format("data_processing:%r" % sensor_values))
