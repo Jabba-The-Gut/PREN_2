@@ -40,9 +40,6 @@ async def run():
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                           body=str.format("init:drone with UUID %r connected" % uuid))
 
-    async for progress_data in system.calibration.calibrate_accelerometer():
-        print(progress_data)
-
     # now we try to arm the drone
     possible_to_arm = False
     while not possible_to_arm:
