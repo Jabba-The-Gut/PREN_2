@@ -1,7 +1,7 @@
 import asyncio
 
 import pika
-from mavsdk import System, ActionError
+from mavsdk import System
 from main.const import const
 
 
@@ -40,6 +40,9 @@ async def run():
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                           body=str.format("init:drone with UUID %r connected" % uuid))
 
+    async for progress_data in system.calibration.calibrate_accelerometer():
+        print(progress_data)
+
     # now we try to arm the drone
     possible_to_arm = False
     while not possible_to_arm:
@@ -50,7 +53,7 @@ async def run():
                                   body="init:successfully armed drone")
             await system.action.disarm()
             break
-        except ActionError as error:
+        except Exception as error:
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
                                       "init:failed to arm drone: %r " % str(error)))
