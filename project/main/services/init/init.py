@@ -1,7 +1,7 @@
 import asyncio
 
 import pika
-from mavsdk import System
+from mavsdk import System, ActionError
 from main.const import const
 
 
@@ -32,11 +32,13 @@ async def run():
 
     # loop through all connections and get the first that is connected
     # --> Must be our drone, because there are no other peripherals
+    uuid = None
     async for state in system.core.connection_state():
         if state.is_connected:
+            uuid = state.uuid
             break
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                          body=str.format("init:drone with UUID %r connected" % await system.info.get_version()))
+                          body=str.format("init:drone with UUID %r connected" % uuid))
 
     # now we try to arm the drone
     possible_to_arm = False
@@ -44,13 +46,11 @@ async def run():
         try:
             await system.action.arm()
             possible_to_arm = True
-            uuid = await system.info.get_version()
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                                  body=str.format(
-                                      "init:drone with UUID %r connected" % uuid))
+                                  body="init:successfully armed drone")
             await system.action.disarm()
             break
-        except Exception as error:
+        except ActionError as error:
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
                                       "init:failed to arm drone: %r " % str(error)))
