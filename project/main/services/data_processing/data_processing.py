@@ -116,7 +116,7 @@ class DataProcessingService:
             if message_parts[2].__eq__("True"):
                 self._px4_working = True
                 self._channel.basic_publish(
-                    exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
+                    exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                     body=str.format("data_processing:received info that px4 is running..."))
         else:
             self._px4_working = False
@@ -152,7 +152,7 @@ class DataProcessingService:
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                         body=str.format("data_processing:%r" % sensor_values))
             self._channel.basic_publish(
-                exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
+                exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                 body=str.format("data_processing:px4_working: %r, blocked: %r" % (self._px4_working, self._blocked)))
 
             # This value has to be defined
