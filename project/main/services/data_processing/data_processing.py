@@ -118,6 +118,8 @@ class DataProcessingService:
                 self._channel.basic_publish(
                     exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                     body=str.format("data_processing:received info that px4 is running..."))
+            else:
+                self._px4_working = False
         else:
             self._px4_working = False
 
@@ -132,7 +134,7 @@ class DataProcessingService:
 
         while True:
             values_asked_for += 1
-            if (values_asked_for % 500) == 0:
+            if (values_asked_for % 1000) == 0:
                 self._channel.basic_publish(
                     exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                     body=str.format(
