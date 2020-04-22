@@ -44,15 +44,16 @@ async def run():
         try:
             await system.action.arm()
             possible_to_arm = True
+            uuid = await system.info.get_version()
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
-                                      "init:drone with UUID %r connected" % await system.info.get_version()))
+                                      "init:drone with UUID %r connected" % uuid))
             await system.action.disarm()
             break
         except Exception as error:
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
-                                      "init:failed to arm drone: %r " % error))
+                                      "init:failed to arm drone: %r " % str(error)))
             # try to arm every 5 seconds
             await asyncio.sleep(5)
 
