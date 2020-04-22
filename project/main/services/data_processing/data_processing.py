@@ -115,6 +115,11 @@ class DataProcessingService:
         elif len(message_parts) == 3 and message_parts[1].__eq__("__px4_running"):
             if message_parts[2].__eq__("True"):
                 self._px4_working = True
+                self._channel.basic_publish(
+                    exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                    body=str.format("data_processing:received info that px4 is running..."))
+            else:
+                self._px4_working = False
         else:
             self._px4_working = False
 
@@ -129,6 +134,12 @@ class DataProcessingService:
 
         while True:
             values_asked_for += 1
+            if (values_asked_for % 1000) == 0:
+                self._channel.basic_publish(
+                    exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                    body=str.format(
+                        "data_processing:px4_working: %r, blocked: %r" % (self._px4_working, self._blocked)))
+
             if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
                 # append the error flag to the buffer

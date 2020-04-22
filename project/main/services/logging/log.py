@@ -17,7 +17,7 @@ def _run():
     print(' [*] Waiting for logs. To exit press CTRL-C')
 
     def callback(ch, method, properties, body):
-        print(" [x] %r:%r" % (method.routing_key, body))
+        print(" [x] %r:%r" % (method.routing_key, body.decode('utf8')))
         # Will write to file the log message here
         with open("logs.txt", "a+") as file:
             file.seek(0)
@@ -26,7 +26,7 @@ def _run():
                 file.write("\n")
             now = datetime.now()
             current = now.strftime("%H:%M:%S")
-            to_write = str(current) + " " + str(body)
+            to_write = str(current) + " " + str(body.decode('utf8'))
             file.write(str(to_write))
             file.close()
 
