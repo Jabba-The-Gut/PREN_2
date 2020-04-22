@@ -132,6 +132,12 @@ class DataProcessingService:
 
         while True:
             values_asked_for += 1
+            if (values_asked_for % 500) == 0:
+                self._channel.basic_publish(
+                    exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                    body=str.format(
+                        "data_processing:px4_working: %r, blocked: %r" % (self._px4_working, self._blocked)))
+
             if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
                 # append the error flag to the buffer
@@ -151,9 +157,6 @@ class DataProcessingService:
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                         body=str.format("data_processing:%r" % sensor_values))
-            self._channel.basic_publish(
-                exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                body=str.format("data_processing:px4_working: %r, blocked: %r" % (self._px4_working, self._blocked)))
 
             # This value has to be defined
             time.sleep(0.01)
