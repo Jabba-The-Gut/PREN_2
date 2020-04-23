@@ -31,6 +31,10 @@ STATUS_COMMANDS_UNSUCCESSFUL = "logic: __px4_running: False"
 # This is temporary string need to change it
 STATUS_DATAPROC_MODULE_FLAG_TRUE  = "data_processing: MODULE_FLAG: True"
 STATUS_DATAPROC_MODULE_FLAG_FALSE  = "data_processing: MODULE_FLAG: False"
+LOGIC_MODULE_FLAG_TRUE = "logic: MODULE_FLAG: True"
+LOGIC_MODULE_FLAG_FALSE = "logic: MODULE_FLAG: False"
+LOG_MODULE_FLAG_TRUE = "log: MODULE_FLAG: True"
+LOG_MODULE_FLAG_FALSE = "log: MODULE_FLAG: False"
 # init constants
 INIT_QUEUE_NAME = "init"
 INIT_BINDING_KEY = "#.init.#"

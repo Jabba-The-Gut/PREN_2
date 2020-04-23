@@ -5,6 +5,7 @@ import pika
 from main.const import const
 from main.services.data_processing import i2c
 from main.services.data_processing import ring_buffer
+import atexit
 
 
 class DataProcessingConsumer:
@@ -128,6 +129,11 @@ class DataProcessingService:
         This is the core method of the data service. It contains the main logic
         :return: None
         """
+        # send message to status that data_processing module is ready
+        self._channel.basic_publish(
+            exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+            body=const.STATUS_DATAPROC_MODULE_FLAG_TRUE)
+
         values_asked_for = 0
         # i need to check the error flag of the last 5 values
         buffer = ring_buffer.RingBuffer(5)
@@ -163,6 +169,13 @@ class DataProcessingService:
             # This value has to be defined
             time.sleep(0.01)
 
+    def at_exit(self):
+        # send message to status that data_processing module is ready
+        self._channel.basic_publish(
+            exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+            body=const.STATUS_DATAPROC_MODULE_FLAG_FALSE)
+
+
 
 def main():
     # start our data processing service
@@ -171,5 +184,7 @@ def main():
     # create consumer
     DataProcessingConsumer(service)
 
+    atexit.register(service.at_exit())
+    
     # start logic
     service.run()
