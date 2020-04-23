@@ -9,6 +9,7 @@ from mavsdk import (OffboardError, PositionNedYaw)
 from mavsdk import System
 
 from main.const import const
+import atexit
 
 
 def callback(ch, method, properties, body):
@@ -58,15 +59,14 @@ class LogicStatus(threading.Thread):
 
 
 class LogicSensor(threading.Thread):
-    drone = System()
-    connection = None
-    channel = None
-    channelLog = None
-    lock = Lock()
-    systemStateOk = True
-
     def __init__(self):
         threading.Thread.__init__(self)
+        self.drone = System()
+        self.connection = None
+        self.channel = None
+        self.channelLog = None
+        self.lock = Lock()
+        self.systemStateOk = True
 
     def run(self):
         self.declareQueueSensor()
@@ -79,6 +79,20 @@ class LogicSensor(threading.Thread):
         self.channel.queue_declare(const.LOGIC_QUEUE_NAME, exclusive=False)
         self.channel.queue_bind(
             exchange='main', queue=const.LOGIC_QUEUE_NAME, routing_key=const.LOGIC_BINDING_KEY)
+
+        def at_exit():
+            # send message to status that logic module is not ready
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+                body=const.LOGIC_MODULE_FLAG_FALSE)
+
+        atexit.register(at_exit)
+        
+        # send message to status that logic module is ready
+        self.channel.basic_publish(
+            exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+            body=const.LOGIC_MODULE_FLAG_TRUE)
+
         self.readSensorValues()
 
     def readSensorValues(self):
