@@ -14,7 +14,7 @@ def _run():
     channel.queue_declare(const.STATUS_QUEUE_NAME, exclusive=False)
 
     channel.queue_bind(
-        exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_QUEUE_NAME
+        exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_BINDING_KEY
     )
 
     px4_running = False
