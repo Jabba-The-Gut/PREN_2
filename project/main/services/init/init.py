@@ -3,6 +3,7 @@ import asyncio
 import pika
 from mavsdk import System
 from main.const import const
+import atexit
 
 
 # that this service runs means that other things such
@@ -20,6 +21,19 @@ async def run():
     channel.queue_bind(
         exchange='main', queue=const.INIT_QUEUE_NAME, routing_key=const.INIT_BINDING_KEY
     )
+
+    def at_exit():
+        channel.basic_publish(
+            exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+            body=const.STATUS_INIT_PX4_STATUS_FALSE)
+
+    atexit.register(at_exit)
+
+    # send message to status that init module is ready
+    channel.basic_publish(
+        exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+        body=const.STATUS_INIT_PX4_FLAG_TRUE)
+
     # log that connection to RabbitMQ was successful
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                           body="init:successfully connected to rabbitmq")

@@ -17,8 +17,6 @@ def _run():
         exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_BINDING_KEY
     )
 
-
-
     # Callback method
     def evaluate_status_flags(ch, method, properties, body):
         px4_running = False
@@ -115,6 +113,7 @@ def _run():
     print("Status Module running and waiting on messages to relay...")
     channel.start_consuming()
     connection.close()
+
 
 def main():
     _run()
