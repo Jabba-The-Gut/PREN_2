@@ -23,6 +23,7 @@ async def run():
     )
 
     def at_exit():
+        # send message to status that init module is not ready
         channel.basic_publish(
             exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
             body=const.INIT_MODULE_FLAG_FALSE)
