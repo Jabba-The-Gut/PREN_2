@@ -184,7 +184,7 @@ def main():
     # create consumer
     DataProcessingConsumer(service)
 
-    atexit.register(service.at_exit())
-    
+    atexit.register(service.at_exit)
+
     # start logic
     service.run()
