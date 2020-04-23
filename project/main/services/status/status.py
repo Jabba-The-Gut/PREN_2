@@ -29,6 +29,7 @@ def _run():
     def evaluate_status_flags(ch, method, properties, body):
         global px4_running, __data_processing_service, __logic_service, __logging_service, system_ok
         system_ok = px4_running and __data_processing_service and __logging_service and __logic_service
+        print(body)
         if not system_ok:
             channel.basic_publish(
                 exchange=const.EXCHANGE,
