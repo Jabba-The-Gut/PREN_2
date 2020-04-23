@@ -39,16 +39,18 @@ def log(message):
 
 
 class LogicStatus(threading.Thread):
-    connectionStatus = None
-    channelStatus = None
-    lock = Lock()
 
     def __init__(self):
         threading.Thread.__init__(self)
+        self.connectionStatus = None
+        self.channelStatus = None
+        self.lock = Lock()
+        self.channel = None
 
     def declareQueueStatus(self):
         self.connectionStatus = pika.BlockingConnection(
             pika.ConnectionParameters(host=const.CONNECTION_STRING))
+        self.channel = self.connectionStatus.channel()
         self.channelStatus = self.connectionStatus.channel()
         # declare queue just for status messages (system_ok)
         self.channel.queue_declare(const.LOGIC_STATUS_QUEUE_NAME, exclusive=False)
