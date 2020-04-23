@@ -17,17 +17,18 @@ def _run():
         exchange='main', queue=const.STATUS_QUEUE_NAME, routing_key=const.STATUS_BINDING_KEY
     )
 
-    px4_running = False
-    system_ok = False
 
-    # Internal flags for this module to evaluate the system_ok flag
-    __logic_service = False
-    __data_processing_service = False
-    __logging_service = False
 
     # Callback method
     def evaluate_status_flags(ch, method, properties, body):
-        global px4_running, __data_processing_service, __logic_service, __logging_service, system_ok
+        px4_running = False
+        system_ok = False
+
+        # Internal flags for this module to evaluate the system_ok flag
+        __logic_service = False
+        __data_processing_service = False
+        __logging_service = False
+
         system_ok = px4_running and __data_processing_service and __logging_service and __logic_service
         print(body)
         if not system_ok:
