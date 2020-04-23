@@ -26,6 +26,7 @@ def _run():
         __logic_service = False
         __data_processing_service = False
         __logging_service = False
+        __init_service = False
 
         system_ok = px4_running and __data_processing_service and __logging_service and __logic_service
         print(body)
@@ -105,6 +106,20 @@ def _run():
                 exchange=const.EXCHANGE,
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: logging module flag: {0}".format(__logging_service)
+            )
+        elif str(body).__contains__(const.INIT_MODULE_FLAG_TRUE):
+            __init_service = True
+            channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOG_BINDING_KEY,
+                body="status: init module flag: {0}".format(__init_service)
+            )
+        elif str(body).__contains__(const.INIT_MODULE_FLAG_FALSE):
+            __init_service = False
+            channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOG_BINDING_KEY,
+                body="status: init module flag: {0}".format(__init_service)
             )
 
     channel.basic_consume(

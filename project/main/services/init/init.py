@@ -25,14 +25,14 @@ async def run():
     def at_exit():
         channel.basic_publish(
             exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
-            body=const.STATUS_INIT_PX4_STATUS_FALSE)
+            body=const.INIT_MODULE_FLAG_FALSE)
 
     atexit.register(at_exit)
 
     # send message to status that init module is ready
     channel.basic_publish(
         exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
-        body=const.STATUS_INIT_PX4_FLAG_TRUE)
+        body=const.INIT_MODULE_FLAG_TRUE)
 
     # log that connection to RabbitMQ was successful
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
