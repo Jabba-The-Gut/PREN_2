@@ -1,6 +1,7 @@
 import pika
 from datetime import datetime
 from main.const import const
+import atexit
 
 
 def _run():
@@ -13,6 +14,20 @@ def _run():
     channel.queue_bind(
         exchange='main', queue=const.LOG_QUEUE_NAME, routing_key=const.LOG_BINDING_KEY
     )
+
+    def at_exit():
+        # send message to status that log module is not ready
+        channel.basic_publish(
+            exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+            body=const.LOG_MODULE_FLAG_FALSE)
+
+    atexit.register(at_exit)
+
+    # send message to status that log module is ready
+    channel.basic_publish(
+        exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+        body=const.LOG_MODULE_FLAG_TRUE)
+
 
     print(' [*] Waiting for logs. To exit press CTRL-C')
 

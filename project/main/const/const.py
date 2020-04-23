@@ -15,6 +15,8 @@ LOG_BINDING_KEY = "#.log.#"
 # logic constants
 LOGIC_QUEUE_NAME = "logic"
 LOGIC_BINDING_KEY = "#.logic.#"
+LOGIC_STATUS_QUEUE_NAME = "logic_status"
+LOGIC_STATUS_BINDING_KEY = "#.logic_status.#"
 HEIGHT_TO_FLIGHT_MIN = 90
 HEIGHT_TO_FLIGHT_MAX = 110
 MAX_RIGHT_DISTANCE = 30
@@ -31,6 +33,12 @@ STATUS_COMMANDS_UNSUCCESSFUL = "logic: __px4_running: False"
 # This is temporary string need to change it
 STATUS_DATAPROC_MODULE_FLAG_TRUE  = "data_processing: MODULE_FLAG: True"
 STATUS_DATAPROC_MODULE_FLAG_FALSE  = "data_processing: MODULE_FLAG: False"
+LOGIC_MODULE_FLAG_TRUE = "logic: MODULE_FLAG: True"
+LOGIC_MODULE_FLAG_FALSE = "logic: MODULE_FLAG: False"
+LOG_MODULE_FLAG_TRUE = "log: MODULE_FLAG: True"
+LOG_MODULE_FLAG_FALSE = "log: MODULE_FLAG: False"
+INIT_MODULE_FLAG_TRUE = "INIT: MODULE_FLAG: True"
+INIT_MODULE_FLAG_FALSE = "INIT: MODULE_FLAG: False"
 # init constants
 INIT_QUEUE_NAME = "init"
 INIT_BINDING_KEY = "#.init.#"
