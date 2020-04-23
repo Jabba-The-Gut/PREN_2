@@ -18,8 +18,12 @@ def callback(ch, method, properties, body):
 
 
 def callbackStatus(ch, method, properties, body):
-    # print(" [x] %r:%r" % (method.routing_key, body))
-    LogicSensor.systemStateOk = False
+    message_parts = body.decode('utf8').split(":")
+
+    if message_parts[2].__eq__(" True"):
+        LogicSensor.systemStateOk = True
+    else:
+        LogicSensor.systemStateOk = False
 
 
 connectionLog = pika.BlockingConnection(
@@ -45,6 +49,7 @@ class LogicStatus(threading.Thread):
     def declareQueueStatus(self):
         self.connectionStatus = pika.BlockingConnection(
             pika.ConnectionParameters(host=const.CONNECTION_STRING))
+        self.channelStatus = self.connectionStatus.channel()
         # declare queue just for status messages (system_ok)
         self.channel.queue_declare(const.LOGIC_STATUS_QUEUE_NAME, exclusive=False)
         self.channel.queue_bind(
@@ -54,7 +59,7 @@ class LogicStatus(threading.Thread):
 
     def checkOverallStatus(self):
         print(' [*] Waiting for overall values. To exit press CTRL+C')
-        self.channelStatus.basic_consume(queue=const.STATUS_QUEUE_NAME,
+        self.channelStatus.basic_consume(queue=const.LOGIC_STATUS_QUEUE_NAME,
                                          on_message_callback=callbackStatus, auto_ack=True)
         self.channelStatus.start_consuming()
 
