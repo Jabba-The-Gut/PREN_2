@@ -15,6 +15,8 @@ LOG_BINDING_KEY = "#.log.#"
 # logic constants
 LOGIC_QUEUE_NAME = "logic"
 LOGIC_BINDING_KEY = "#.logic.#"
+LOGIC_STATUS_QUEUE_NAME = "logic_status"
+LOGIC_STATUS_BINDING_KEY = "#.logic_status.#"
 HEIGHT_TO_FLIGHT_MIN = 90
 HEIGHT_TO_FLIGHT_MAX = 110
 MAX_RIGHT_DISTANCE = 30

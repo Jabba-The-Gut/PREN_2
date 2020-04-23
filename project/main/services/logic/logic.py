@@ -45,7 +45,11 @@ class LogicStatus(threading.Thread):
     def declareQueueStatus(self):
         self.connectionStatus = pika.BlockingConnection(
             pika.ConnectionParameters(host=const.CONNECTION_STRING))
-        self.channelStatus = self.connectionStatus.channel()
+        # declare queue just for status messages (system_ok)
+        self.channel.queue_declare(const.LOGIC_STATUS_QUEUE_NAME, exclusive=False)
+        self.channel.queue_bind(
+            exchange='main', queue=const.LOGIC_STATUS_QUEUE_NAME, routing_key=const.LOGIC_STATUS_BINDING_KEY
+        )
         self.checkOverallStatus()
 
     def checkOverallStatus(self):
@@ -87,7 +91,7 @@ class LogicSensor(threading.Thread):
                 body=const.LOGIC_MODULE_FLAG_FALSE)
 
         atexit.register(at_exit)
-        
+
         # send message to status that logic module is ready
         self.channel.basic_publish(
             exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,

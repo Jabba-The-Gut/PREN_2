@@ -33,7 +33,7 @@ def _run():
         if not system_ok:
             channel.basic_publish(
                 exchange=const.EXCHANGE,
-                routing_key=const.LOGIC_BINDING_KEY,
+                routing_key=const.LOGIC_STATUS_BINDING_KEY,
                 body="status: system_ok: {0}".format(system_ok)
             )
             channel.basic_publish(
