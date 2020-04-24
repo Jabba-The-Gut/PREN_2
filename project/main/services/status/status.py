@@ -18,6 +18,7 @@ class StatusService:
 
     # Callback method
     def evaluate_status_flags(self, ch, method, properties, body):
+        print(body)
         self.system_ok = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service
         if self.system_ok:
             self.channel.basic_publish(
