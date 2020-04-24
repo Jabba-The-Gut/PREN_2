@@ -130,7 +130,6 @@ class DataProcessingService:
 
         while True:
             values_asked_for += 1
-            print("px4_working: %r, blocked: %r" % (self._px4_working, self._blocked))
 
             if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
@@ -151,8 +150,7 @@ class DataProcessingService:
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                         body=str.format("data_processing:%r" % sensor_values))
-            time.sleep(10)
-
+            time.sleep(0.25)
 
     def at_exit(self):
         # send message to status that data_processing module is ready
