@@ -29,7 +29,7 @@ def _run():
         __init_service = False
 
         system_ok = px4_running and __data_processing_service and __logging_service and __logic_service
-        print(body)
+        print("px4_running: %r, data_processing: %r, logging: %r, logic: %r" % (px4_running, __data_processing_service, __logging_service, __logic_service))
         if not system_ok:
             channel.basic_publish(
                 exchange=const.EXCHANGE,
