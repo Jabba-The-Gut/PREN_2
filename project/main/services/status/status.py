@@ -20,7 +20,18 @@ class StatusService:
     def evaluate_status_flags(self, ch, method, properties, body):
 
         self.system_ok = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service
-        if not self.system_ok:
+        if self.system_ok:
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOGIC_STATUS_BINDING_KEY,
+                body="status: system_ok: {0}".format(self.system_ok)
+            )
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOG_BINDING_KEY,
+                body="status: system_ok: {0}".format(self.system_ok)
+            )
+        elif self.system_ok:
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOGIC_STATUS_BINDING_KEY,
@@ -111,7 +122,7 @@ class StatusService:
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: init module flag: {0}".format(self.__init_service)
             )
-        print("px4_running: %r, data_processing: %r, logging: %r, logic: %r" % (
+        print("system_ok: %r, px4_running: %r, data_processing: %r, logging: %r, logic: %r" % (self.system_ok,
             self.px4_running, self.__data_processing_service, self.__logging_service, self.__logic_service))
 
     def run(self):
