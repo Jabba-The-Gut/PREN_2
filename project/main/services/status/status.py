@@ -31,7 +31,7 @@ class StatusService:
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: system_ok: {0}".format(self.system_ok)
             )
-        elif self.system_ok:
+        elif not self.system_ok:
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOGIC_STATUS_BINDING_KEY,
