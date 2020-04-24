@@ -29,7 +29,6 @@ def _run():
         __init_service = False
 
         system_ok = px4_running and __data_processing_service and __logging_service and __logic_service
-        print("px4_running: %r, data_processing: %r, logging: %r, logic: %r" % (px4_running, __data_processing_service, __logging_service, __logic_service))
         if not system_ok:
             channel.basic_publish(
                 exchange=const.EXCHANGE,
@@ -121,6 +120,8 @@ def _run():
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: init module flag: {0}".format(__init_service)
             )
+        print("px4_running: %r, data_processing: %r, logging: %r, logic: %r" % (
+            px4_running, __data_processing_service, __logging_service, __logic_service))
 
     channel.basic_consume(
         queue=const.STATUS_QUEUE_NAME, on_message_callback=evaluate_status_flags, auto_ack=True
