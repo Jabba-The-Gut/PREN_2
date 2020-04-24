@@ -109,18 +109,8 @@ class DataProcessingService:
         :param message: message content
         :return: None
         """
-        message_parts = message.decode('utf8').split(":")
-
-        if len(message_parts) == 2:
-            self._px4_working = False  # we expect a message with a flag, not just payload
-        elif len(message_parts) == 3 and message_parts[1].__eq__("__px4_running"):
-            if message_parts[2].__eq__("True"):
-                self._px4_working = True
-                self._channel.basic_publish(
-                    exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                    body=str.format("data_processing:received info that px4 is running..."))
-            else:
-                self._px4_working = False
+        if message.__eq__(const.STATUS_PX4_FLAG_TRUE):
+            self._px4_working = True
         else:
             self._px4_working = False
 
@@ -140,11 +130,6 @@ class DataProcessingService:
 
         while True:
             values_asked_for += 1
-            if (values_asked_for % 1000) == 0:
-                self._channel.basic_publish(
-                    exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                    body=str.format(
-                        "data_processing:px4_working: %r, blocked: %r" % (self._px4_working, self._blocked)))
 
             if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
@@ -154,27 +139,24 @@ class DataProcessingService:
                 if sum(buffer.get()) == 0 and values_asked_for > 5:  # we get an 0 if one of the sensors has an error
                     # publish to status value that we have an error in sensor values
                     self._channel.basic_publish(
-                        exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY, body="data_processing:sensor "
-                                                                                            "error")
+                        exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY, body="data_processing:sensor "
+                                                                                         "error")
                 else:
                     del sensor_values["error"]
                     # publish values to logic module
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
-                        body=str.format(sensor_values))
+                        body=sensor_values)
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                         body=str.format("data_processing:%r" % sensor_values))
-
-            # This value has to be defined
-            time.sleep(0.01)
+            time.sleep(0.25)
 
     def at_exit(self):
         # send message to status that data_processing module is ready
         self._channel.basic_publish(
             exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
             body=const.STATUS_DATAPROC_MODULE_FLAG_FALSE)
-
 
 
 def main():
