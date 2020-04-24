@@ -19,6 +19,8 @@ class StatusService:
     # Callback method
     def evaluate_status_flags(self, ch, method, properties, body):
         print(body)
+
+        system_ok_before = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service
         if str(body).__contains__(const.INIT_PX4_FLAG_TRUE):
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
@@ -106,7 +108,7 @@ class StatusService:
 
         self.system_ok = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service
 
-        if self.system_ok:
+        if self.system_ok and not system_ok_before:
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOGIC_STATUS_BINDING_KEY,
@@ -117,7 +119,7 @@ class StatusService:
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: system_ok: {0}".format(self.system_ok)
             )
-        elif not self.system_ok:
+        elif not self.system_ok and system_ok_before:
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOGIC_STATUS_BINDING_KEY,
