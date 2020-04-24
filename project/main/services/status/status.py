@@ -47,6 +47,10 @@ class StatusService:
                 exchange=const.EXCHANGE,
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: PX4 is started and running")
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.DATA_PROCESSING_BINDING_KEY,
+                body=const.STATUS_PX4_FLAG_TRUE)
             self.px4_running = True
         elif str(body).__contains__(const.STATUS_INIT_PX4_STATUS_FALSE):
             self.channel.basic_publish(

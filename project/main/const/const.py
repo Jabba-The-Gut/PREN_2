@@ -7,6 +7,7 @@ EXCHANGE = "main"
 # data_processing constants
 DATA_PROCESSING_QUEUE_NAME = "data_processing"
 DATA_PROCESSING_BINDING_KEY = "#.data_processing.#"
+STATUS_PX4_FLAG_TRUE = "status: __px4_running: True"
 
 # log constants
 LOG_QUEUE_NAME = "log"
@@ -39,6 +40,7 @@ LOG_MODULE_FLAG_TRUE = "log: MODULE_FLAG: True"
 LOG_MODULE_FLAG_FALSE = "log: MODULE_FLAG: False"
 INIT_MODULE_FLAG_TRUE = "INIT: MODULE_FLAG: True"
 INIT_MODULE_FLAG_FALSE = "INIT: MODULE_FLAG: False"
+
 # init constants
 INIT_QUEUE_NAME = "init"
 INIT_BINDING_KEY = "#.init.#"

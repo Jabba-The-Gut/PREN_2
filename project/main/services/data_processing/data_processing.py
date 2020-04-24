@@ -109,18 +109,11 @@ class DataProcessingService:
         :param message: message content
         :return: None
         """
-        message_parts = message.decode('utf8').split(":")
-
-        if len(message_parts) == 2:
-            self._px4_working = False  # we expect a message with a flag, not just payload
-        elif len(message_parts) == 3 and message_parts[1].__eq__("__px4_running"):
-            if message_parts[2].__eq__("True"):
-                self._px4_working = True
-                self._channel.basic_publish(
+        if message.__eq__(const.STATUS_PX4_FLAG_TRUE):
+            self._px4_working = True
+            self._channel.basic_publish(
                     exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                     body=str.format("data_processing:received info that px4 is running..."))
-            else:
-                self._px4_working = False
         else:
             self._px4_working = False
 
