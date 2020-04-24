@@ -18,6 +18,11 @@ def log(channel, msg):
     )
 
 
+height_margin_offset = 5    # Tweak this value for when we have real time data and offsets
+side_margin_offset = 5      # Tweak this value for when we have real time data and offsets
+front_margin_offset = 5     # Tweak this value for when we have real time data and offsets
+
+
 class stack:
     def __init__(self, size):
         self.size = size
@@ -61,9 +66,13 @@ class commsProtocol:
         Code 1 : new_data was not of type tuple
         Code 2 : new_data had more or less than 3 elements in it
         '''
+        global height_margin_offset, side_margin_offset, front_margin_offset
         if isinstance(new_data, tuple):
             if len(new_data) == 3:
-                if self.stack.buf[-1][0] == new_data[0] or self.stack.buf[-1][1] == new_data[1] or self.stack.buf[-1][2] == new_data[2]:
+                condition_one = ((self.stack.buf[-1][0] + height_margin_offset) or (self.stack.buf[-1][0] - height_margin_offset)) == new_data[0]
+                condition_two = ((self.stack.buf[-1][1] + side_margin_offset) or (self.stack.buf[-1][1] - side_margin_offset)) == new_data[1]
+                condition_three = ((self.stack.buf[-1][2] + front_margin_offset) or (self.stack.buf[-1][2] - front_margin_offset)) == new_data[2]
+                if condition_one or condition_two or condition_three:
                     del new_data
                     return 'Data Evaluated. Irrelevant data.'
                 else:
@@ -76,3 +85,9 @@ class commsProtocol:
         else:
             return 'Evaluation procedure ended with error code 1\n'
 
+
+if __name__ == '__main__':
+    cp = commsProtocol(5)
+    print(cp.evaluate_relevant_data((30, 55, 55)))
+    print(cp.evaluate_relevant_data((30, 60, 55)))
+    print(cp.evaluate_relevant_data((30, 80, 55)))
