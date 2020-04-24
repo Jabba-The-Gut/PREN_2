@@ -19,29 +19,6 @@ class StatusService:
     # Callback method
     def evaluate_status_flags(self, ch, method, properties, body):
         print(body)
-        self.system_ok = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service
-        if self.system_ok:
-            self.channel.basic_publish(
-                exchange=const.EXCHANGE,
-                routing_key=const.LOGIC_STATUS_BINDING_KEY,
-                body="status: system_ok: {0}".format(self.system_ok)
-            )
-            self.channel.basic_publish(
-                exchange=const.EXCHANGE,
-                routing_key=const.LOG_BINDING_KEY,
-                body="status: system_ok: {0}".format(self.system_ok)
-            )
-        elif not self.system_ok:
-            self.channel.basic_publish(
-                exchange=const.EXCHANGE,
-                routing_key=const.LOGIC_STATUS_BINDING_KEY,
-                body="status: system_ok: {0}".format(self.system_ok)
-            )
-            self.channel.basic_publish(
-                exchange=const.EXCHANGE,
-                routing_key=const.LOG_BINDING_KEY,
-                body="status: system_ok: {0}".format(self.system_ok)
-            )
         if str(body).__contains__(const.INIT_PX4_FLAG_TRUE):
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
@@ -128,6 +105,29 @@ class StatusService:
             )
 
         self.system_ok = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service
+
+        if self.system_ok:
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOGIC_STATUS_BINDING_KEY,
+                body="status: system_ok: {0}".format(self.system_ok)
+            )
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOG_BINDING_KEY,
+                body="status: system_ok: {0}".format(self.system_ok)
+            )
+        elif not self.system_ok:
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOGIC_STATUS_BINDING_KEY,
+                body="status: system_ok: {0}".format(self.system_ok)
+            )
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE,
+                routing_key=const.LOG_BINDING_KEY,
+                body="status: system_ok: {0}".format(self.system_ok)
+            )
 
         print("system_ok: %r, px4_running: %r, data_processing: %r, logging: %r, logic: %r" % (self.system_ok,
             self.px4_running, self.__data_processing_service, self.__logging_service, self.__logic_service))
