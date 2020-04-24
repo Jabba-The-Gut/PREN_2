@@ -24,6 +24,7 @@ def callbackStatus(ch, method, properties, body):
         LogicSensor.systemStateOk = True
     else:
         LogicSensor.systemStateOk = False
+    print("system_ok: %r" % LogicSensor.systemStateOk)
 
 
 connectionLog = pika.BlockingConnection(
