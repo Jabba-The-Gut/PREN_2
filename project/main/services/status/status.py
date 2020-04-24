@@ -40,7 +40,7 @@ class StatusService:
                 routing_key=const.LOG_BINDING_KEY,
                 body="status: system_ok: {0}".format(self.system_ok)
             )
-        if str(body).__contains__(const.STATUS_INIT_PX4_FLAG_TRUE):
+        if str(body).__contains__(const.INIT_PX4_FLAG_TRUE):
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOG_BINDING_KEY,
@@ -50,7 +50,7 @@ class StatusService:
                 routing_key=const.DATA_PROCESSING_BINDING_KEY,
                 body=const.STATUS_PX4_FLAG_TRUE)
             self.px4_running = True
-        elif str(body).__contains__(const.STATUS_INIT_PX4_STATUS_FALSE):
+        elif str(body).__contains__(const.INIT_PX4_FLAG_FALSE):
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOG_BINDING_KEY,

@@ -69,6 +69,8 @@ async def run():
             channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                                   body=str.format(
                                       "init:failed to arm drone: %r " % str(error)))
+            channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+                                  body=const.INIT_PX4_FLAG_FALSE)
             # try to arm every 5 seconds
             await asyncio.sleep(5)
 
@@ -78,7 +80,7 @@ async def run():
 
     # publish the __px4_running flag to the status module
     channel.basic_publish(exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
-                          body="init:__px4_running:True")
+                          body=const.INIT_PX4_FLAG_TRUE)
 
 
 def main():
