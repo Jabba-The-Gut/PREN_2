@@ -26,7 +26,6 @@ class I2cReader:
         try:
             # Read 6 data bytes from i2c bus
             data = self.bus.read_i2c_block_data(self.address, 0, 6)
-            print(data)
 
             # Rearrange data bytes to 16bit integers
             values = [0, 0, 0, 1]
