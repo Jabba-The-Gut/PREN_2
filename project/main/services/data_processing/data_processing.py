@@ -109,6 +109,7 @@ class DataProcessingService:
         :param message: message content
         :return: None
         """
+        print(message)
         if message.__eq__(const.STATUS_PX4_FLAG_TRUE):
             self._px4_working = True
         else:
