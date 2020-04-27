@@ -26,9 +26,10 @@ class I2cReader:
         try:
             # Read 6 data bytes from i2c bus
             data = self.bus.read_i2c_block_data(self.address, 0, 6)
+            print(data)
 
             # Rearrange data bytes to 16bit integers
-            values = [0, 0, 0, 0]
+            values = [0, 0, 0, 1]
             values[0] = (data[0] << 8) + data[1]  # distance front
             values[1] = (data[2] << 8) + data[3]  # distance side
             values[2] = (data[4] << 8) + data[5]  # distance ground
