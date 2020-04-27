@@ -7,7 +7,6 @@ EXCHANGE = "main"
 # data_processing constants
 DATA_PROCESSING_QUEUE_NAME = "data_processing"
 DATA_PROCESSING_BINDING_KEY = "#.data_processing.#"
-STATUS_PX4_FLAG_TRUE = "status: __px4_running: True"
 
 # log constants
 LOG_QUEUE_NAME = "log"
@@ -18,6 +17,7 @@ LOGIC_QUEUE_NAME = "logic"
 LOGIC_BINDING_KEY = "#.logic.#"
 LOGIC_STATUS_QUEUE_NAME = "logic_status"
 LOGIC_STATUS_BINDING_KEY = "#.logic_status.#"
+LOGIC_PX4_FLAG_FALSE = "status: __px4_running: False"
 HEIGHT_TO_FLIGHT_MIN = 90
 HEIGHT_TO_FLIGHT_MAX = 110
 MAX_RIGHT_DISTANCE = 30
@@ -27,6 +27,8 @@ MIN_FRONT_DISTANCE = 40
 # status constants
 STATUS_QUEUE_NAME = "status"
 STATUS_BINDING_KEY = "#.status.#"
+STATUS_PX4_FLAG_FALSE = "status: __px4_running: False"
+STATUS_PX4_FLAG_TRUE = "status: __px4_running: True"
 
 STATUS_COMMANDS_UNSUCCESSFUL = "logic: __px4_running: False"
 # This is temporary string need to change it

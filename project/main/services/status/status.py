@@ -31,7 +31,7 @@ class StatusService:
                 routing_key=const.DATA_PROCESSING_BINDING_KEY,
                 body=const.STATUS_PX4_FLAG_TRUE)
             self.px4_running = True
-        elif str(body).__contains__(const.INIT_PX4_FLAG_FALSE):
+        elif str(body).__contains__(const.INIT_PX4_FLAG_FALSE) or str(body).__contains__(const.LOGIC_PX4_FLAG_FALSE):
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOG_BINDING_KEY,
@@ -40,7 +40,7 @@ class StatusService:
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.DATA_PROCESSING_BINDING_KEY,
-                body="status: __px4_running: {0}".format(self.px4_running)
+                body=const.STATUS_PX4_FLAG_FALSE
             )
         elif str(body).__contains__(const.STATUS_COMMANDS_UNSUCCESSFUL):
             self.px4_running = False
