@@ -149,7 +149,7 @@ class DataProcessingService:
                         body=str(sensor_values))
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                        body=str.format("data_processing:%r" % str(sensor_values)))
+                        body=str(sensor_values))
             time.sleep(0.25)
 
     def at_exit(self):
