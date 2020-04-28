@@ -110,12 +110,10 @@ class DataProcessingService:
         :return: None
         """
         print(message)
-        if message.__eq__(const.STATUS_PX4_FLAG_TRUE):
+        if str(message).__contains__(const.STATUS_PX4_FLAG_TRUE):
             self._px4_working = True
-            print(self._px4_working)
         else:
             self._px4_working = False
-            print(self._px4_working)
 
     def run(self):
         """
