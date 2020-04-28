@@ -30,7 +30,6 @@ STATUS_BINDING_KEY = "#.status.#"
 STATUS_PX4_FLAG_FALSE = "status: __px4_running: False"
 STATUS_PX4_FLAG_TRUE = "status: __px4_running: True"
 
-STATUS_COMMANDS_UNSUCCESSFUL = "logic: __px4_running: False"
 # This is temporary string need to change it
 STATUS_DATAPROC_MODULE_FLAG_TRUE  = "data_processing: MODULE_FLAG: True"
 STATUS_DATAPROC_MODULE_FLAG_FALSE  = "data_processing: MODULE_FLAG: False"

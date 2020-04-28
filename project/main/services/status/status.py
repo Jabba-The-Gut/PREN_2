@@ -35,19 +35,12 @@ class StatusService:
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.LOG_BINDING_KEY,
-                body="status: PX4 did not start up successfully")
+                body="status: PX4 not working correctly")
             self.px4_running = False
             self.channel.basic_publish(
                 exchange=const.EXCHANGE,
                 routing_key=const.DATA_PROCESSING_BINDING_KEY,
                 body=const.STATUS_PX4_FLAG_FALSE
-            )
-        elif str(body).__contains__(const.STATUS_COMMANDS_UNSUCCESSFUL):
-            self.px4_running = False
-            self.channel.basic_publish(
-                exchange=const.EXCHANGE,
-                routing_key=const.DATA_PROCESSING_QUEUE_NAME,
-                body="status: __px4_running: {0}".format(self.px4_running)
             )
         elif str(body).__contains__(const.STATUS_DATAPROC_MODULE_FLAG_TRUE):
             self.__data_processing_service = True
