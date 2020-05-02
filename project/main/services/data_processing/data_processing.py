@@ -151,7 +151,7 @@ class DataProcessingService:
                     self._channel.basic_publish(
                         exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
                         body=str(sensor_values))
-            time.sleep(0.25)
+            time.sleep(0.01)
 
     def at_exit(self):
         # send message to status that data_processing module is ready
