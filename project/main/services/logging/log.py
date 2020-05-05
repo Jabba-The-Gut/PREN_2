@@ -3,6 +3,8 @@ from datetime import datetime
 from project.main.const import const
 import atexit
 
+buffered_logs = []
+buffer_threshold = 20
 
 def _run():
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
@@ -32,6 +34,7 @@ def _run():
     print(' [*] Waiting for logs. To exit press CTRL-C')
 
     def callback(ch, method, properties, body):
+        global buffered_logs, buffer_threshold
         print(" [x] %r:%r" % (method.routing_key, body.decode('utf8')))
         # Will write to file the log message here
         with open("logs.txt", "a+") as file:
@@ -42,7 +45,10 @@ def _run():
             now = datetime.now()
             current = now.strftime("%H:%M:%S")
             to_write = str(current) + " " + str(body.decode('utf8'))
-            file.write(str(to_write))
+            buffered_logs.append(to_write)
+            if (len(buffered_logs) > buffer_threshold):
+                for log in buffered_logs:
+                    file.write(str(log))
             file.close()
 
     channel.basic_consume(
