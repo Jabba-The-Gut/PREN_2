@@ -1,4 +1,7 @@
-from project.main.services.logic import logic
+from project.main.services.logic import LogicSensor
+from project.main.services.logic import LogicStatus
+
 
 if __name__ == '__main__':
-    logic.main()
+    LogicSensor.main()
+    LogicStatus.main()

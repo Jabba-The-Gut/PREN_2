@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from mavsdk import System
 # Central file to manage all constants used in the project
 CONNECTION_STRING = "localhost"
 EXCHANGE = "main"
@@ -23,6 +23,7 @@ HEIGHT_TO_FLIGHT_MAX = 110
 MAX_RIGHT_DISTANCE = 30
 MIN_RIGHT_DISTANCE = 10
 MIN_FRONT_DISTANCE = 40
+drone = System()
 
 # status constants
 STATUS_QUEUE_NAME = "status"
