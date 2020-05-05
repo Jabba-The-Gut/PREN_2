@@ -1,6 +1,5 @@
 import pika
-from main.const import const
-
+from project.main.const import const
 
 class StatusService:
     def __init__(self):

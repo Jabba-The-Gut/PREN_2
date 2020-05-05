@@ -1,6 +1,6 @@
 import pika
 from datetime import datetime
-from main.const import const
+from project.main.const import const
 import atexit
 
 

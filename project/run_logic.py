@@ -1,4 +1,4 @@
-from main.services.logic import logic
+from project.main.services.logic import logic
 
 if __name__ == '__main__':
     logic.main()

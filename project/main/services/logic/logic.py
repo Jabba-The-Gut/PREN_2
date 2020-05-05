@@ -8,7 +8,7 @@ import pika
 from mavsdk import (OffboardError, PositionNedYaw)
 from mavsdk import System
 
-from main.const import const
+from project.main.const import const
 import atexit
 
 

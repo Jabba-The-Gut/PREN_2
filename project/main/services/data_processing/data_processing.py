@@ -2,9 +2,9 @@ import threading
 import time
 
 import pika
-from main.const import const
-from main.services.data_processing import i2c
-from main.services.data_processing import ring_buffer
+from project.main.const import const
+from project.main.services.data_processing import i2c
+from project.main.services.data_processing import ring_buffer
 import atexit
 
 
