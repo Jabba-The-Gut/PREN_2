@@ -5,6 +5,7 @@ import pika
 from project.main.const import const
 from project.main.services.data_processing import i2c
 from project.main.services.data_processing import ring_buffer
+from project.main.smart_stack import smartStack
 import atexit
 
 
@@ -64,6 +65,9 @@ class DataProcessingService:
     def __init__(self):
         self._px4_working = False
         self._blocked = False
+
+        # instance of the smart stack
+        self.data_buffer = smartStack(200)  # this 200 value is harcoded can be changed here to allow more things in the buffer
 
         # reference to sensor data class
         self.sensor_data = i2c.I2cReader()
@@ -134,6 +138,8 @@ class DataProcessingService:
 
             if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
+                new_data = (sensor_values["height"], sensor_values["sensor_right"], sensor_values["sensor_front"])
+                self.data_buffer.evaluate_relevant_data(new_data)
                 # append the error flag to the buffer
                 buffer.append(sensor_values["error"])
 
@@ -145,12 +151,13 @@ class DataProcessingService:
                 else:
                     del sensor_values["error"]
                     # publish values to logic module
-                    self._channel.basic_publish(
-                        exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
-                        body=str(sensor_values))
-                    self._channel.basic_publish(
-                        exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
-                        body=str(sensor_values))
+                    if (len(self.data_buffer.stack) > 0):
+                        self._channel.basic_publish(
+                            exchange=const.EXCHANGE, routing_key=const.LOGIC_BINDING_KEY,
+                            body=str(self.data_buffer.stack.pop_from_stack()))
+                        self._channel.basic_publish(
+                            exchange=const.EXCHANGE, routing_key=const.LOG_BINDING_KEY,
+                            body=str(self.data_buffer.stack.pop_from_stack()))
             time.sleep(0.01)
 
     def at_exit(self):
@@ -171,3 +178,6 @@ def main():
 
     # start logic
     service.run()
+
+if __name__ == '__main__':
+    main()
