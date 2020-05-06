@@ -138,7 +138,8 @@ class DataProcessingService:
 
             if self._px4_working and not self._blocked:
                 sensor_values = self.sensor_data.read_values()
-                self.data_buffer.evaluate_relevant_data()
+                new_data = (sensor_values["height"], sensor_values["sensor_right"], sensor_values["sensor_front"])
+                self.data_buffer.evaluate_relevant_data(new_data)
                 # append the error flag to the buffer
                 buffer.append(sensor_values["error"])
 
