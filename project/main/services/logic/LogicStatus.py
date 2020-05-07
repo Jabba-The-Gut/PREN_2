@@ -10,7 +10,7 @@ from mavsdk import (OffboardError, PositionNedYaw)
 from project.main.const import const
 import atexit
 
-systemStateOk = True
+
 
 def callbackStatus(ch, method, properties, body):
     message_parts = body.decode('utf8').split(":")
@@ -23,6 +23,7 @@ def callbackStatus(ch, method, properties, body):
 
 class LogicStatus(threading.Thread):
 
+    systemStateOk = True
 
     def __init__(self):
         threading.Thread.__init__(self)

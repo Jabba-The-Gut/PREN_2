@@ -18,12 +18,14 @@ LOGIC_BINDING_KEY = "#.logic.#"
 LOGIC_STATUS_QUEUE_NAME = "logic_status"
 LOGIC_STATUS_BINDING_KEY = "#.logic_status.#"
 LOGIC_PX4_FLAG_FALSE = "logic: __px4_running: False"
-HEIGHT_TO_FLIGHT_MIN = 90
-HEIGHT_TO_FLIGHT_MAX = 110
-MAX_RIGHT_DISTANCE = 30
-MIN_RIGHT_DISTANCE = 10
+HEIGHT_TO_FLIGHT_MIN = 40
+HEIGHT_TO_FLIGHT_MAX = 80
+MAX_RIGHT_DISTANCE = 80
+MIN_RIGHT_DISTANCE = 50
 MIN_FRONT_DISTANCE = 40
 drone = System()
+systemReady = False
+systemStateOk = True
 
 # status constants
 STATUS_QUEUE_NAME = "status"
