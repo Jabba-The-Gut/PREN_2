@@ -16,10 +16,10 @@ def callbackStatus(ch, method, properties, body):
     message_parts = body.decode('utf8').split(":")
 
     if message_parts[2].__eq__(" True"):
-        LogicStatus.systemStateOk = True
+        const.systemStateOk = True
     else:
-        LogicStatus.systemStateOk = False
-    print("system_ok: %r" % LogicStatus.systemStateOk)
+        const.systemStateOk = False
+    print("system_ok: %r" % const.systemStateOk)
 
 class LogicStatus(threading.Thread):
 
