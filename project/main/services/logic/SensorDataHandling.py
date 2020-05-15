@@ -2,11 +2,12 @@ import asyncio
 import json
 import time
 
-from aio_pika import connect_robust
+from aio_pika import connect_robust, connect, Message, DeliveryMode, ExchangeType
 from mavsdk import (OffboardError, VelocityBodyYawspeed)
 
 from project.main.const import const
-
+import os
+import project.main.services.logic.logMessage
 
 
 async def takeoff():
@@ -37,9 +38,11 @@ async def takeoff():
         await const.drone.action.disarm()
         return
 
+
 async def flyToTravelHeight():
     await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, -0.4, 0.0))
     await asyncio.sleep(1)
+
 
 async def generateCommandsForDrone(sensorData):
     height = json.loads(sensorData)["height"]
@@ -58,36 +61,36 @@ async def generateCommandsForDrone(sensorData):
         time.sleep(0.25)
     else:
         if (heightState == 2 and frontState == 2 and sideState == 2):
-            print("forward")
+            os.system("logMessage.py up")
             await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(4.0, 0.0, 0.0, 0))
-            #await asyncio.sleep(0.25)
+            # await asyncio.sleep(0.25)
         else:
             if (heightState == 0):
-                print("up")
+                os.system("logMessage.py up")
                 await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, -0.4, 0))
-                #await asyncio.sleep(0.25)
+                # await asyncio.sleep(0.25)
             elif (heightState == 1):
-                print("down")
+                os.system("logMessage.py down")
                 await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, 0.4, 0))
-                #await asyncio.sleep(0.25)
+                # await asyncio.sleep(0.25)
             else:
                 if (frontState == 1):
-                    print("left")
+                    os.system("logMessage.py left")
                     await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, 0.0, -90))
-                    #await asyncio.sleep(0.25)
+                    # await asyncio.sleep(0.25)
                 else:
                     if (sideState == 0):
-                        print("right/forward")
+                        os.system("logMessage.py right/forward")
                         await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(4.0, 0.1, 0.0, 0))
-                        #await asyncio.sleep(0.25)
+                        # await asyncio.sleep(0.25)
                     elif (sideState == 1):
-                        print("left/forward")
+                        os.system("logMessage.py left/forward")
                         await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(4.0, -0.1, 0.0, 0))
-                        #await asyncio.sleep(0.25)
+                        # await asyncio.sleep(0.25)
                     else:
-                        print("forward")
+                        os.system("logMessage.py forward")
                         await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(4.0, 0.0, 0.0, 0))
-                        #await asyncio.sleep(3)
+                        # await asyncio.sleep(3)
 
 
 # Return 0 means to low, return 1 means to high, return 2 means ok
@@ -116,6 +119,7 @@ def checkSideState(sensor_right):
         return 2
 
 
+
 async def main(loop):
     connection = await connect_robust(
         "amqp://guest:guest@localhost", loop=loop
@@ -135,13 +139,7 @@ async def main(loop):
         async with queue.iterator() as queue_iter:
             async for message in queue_iter:
                 async with message.process():
-                    print(message.body)
+                    #print(message.body)
                     await generateCommandsForDrone(message.body)
                     if queue.name in message.body.decode():
                         break
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(loop))
-    loop.close()
