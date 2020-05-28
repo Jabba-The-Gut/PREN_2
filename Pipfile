@@ -9,6 +9,7 @@ verify_ssl = true
 mavsdk = "*"
 pika = "*"
 smbus2 = "*"
+aio-pika = "*"
 
 [requires]
 python_version = "3.7"
