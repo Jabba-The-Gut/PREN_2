@@ -5,8 +5,17 @@ import atexit
 
 buffered_logs = []
 buffer_threshold = 20
+"""
+This is the logging service. It logs all messages that are sent to it from any of the other services and
+outputs it to a file on the filesystem to be viewed later if need.
+"""
 
 def _run():
+    """
+    The main function of this service. The connection is established, queue set and the service is made ready
+    for functionality here.
+    :return:
+    """
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
     channel = connection.channel()
     channel.exchange_declare(exchange=const.EXCHANGE, exchange_type='topic')

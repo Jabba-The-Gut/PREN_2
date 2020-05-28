@@ -2,6 +2,11 @@ import pika
 from project.main.const import const
 
 class StatusService:
+    """
+    This is the status service. It is the main regulator of the system. It keeps track of the various statuses of
+    the other services and broadcasts them to whichever service calls for it. It has flags for the whole system (PX4 +
+    Sensors) and also internal flags for each individual service.
+    """
     def __init__(self):
         self.px4_running = False
         self.system_ok = False
@@ -17,6 +22,12 @@ class StatusService:
 
     # Callback method
     def evaluate_status_flags(self, ch, method, properties, body):
+        """
+        This is the callback method that is called when a message is received and consumed by this service.
+
+        :param body: The body of the message that triggered this callback
+        :return: None
+        """
         print(body)
 
         system_ok_before = self.px4_running and self.__data_processing_service and self.__logging_service and self.__logic_service

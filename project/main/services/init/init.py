@@ -4,12 +4,16 @@ import pika
 from mavsdk import System
 from project.main.const import const
 import atexit
-
-
-# that this service runs means that other things such
-# as raspberry pi and power etc. are ok
+"""
+The service is run first. It sets up all of the flags and required parameters for the system to function 
+correctly. This service always has to start first
+"""
 
 async def run():
+    """
+    The main method that is run once at the start of this service.
+    :return: None
+    """
     # first we set up the pika connection
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=const.CONNECTION_STRING))
     channel = connection.channel()
