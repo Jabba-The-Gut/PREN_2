@@ -48,6 +48,11 @@ class LogicStatus(threading.Thread):
         self.channel.queue_bind(
             exchange='main', queue=const.LOGIC_STATUS_QUEUE_NAME, routing_key=const.LOGIC_STATUS_BINDING_KEY
         )
+
+        # send message to status that logic module is ready
+        self.channel.basic_publish(
+            exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+            body=const.LOGIC_MODULE_FLAG_TRUE)
         self.checkOverallStatus()
 
     def checkOverallStatus(self):
@@ -62,6 +67,14 @@ class LogicStatus(threading.Thread):
 
     def run(self):
         self.declareQueueStatus()
+
+        def at_exit():
+            # send message to status that logic module is not ready
+            self.channel.basic_publish(
+                exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
+                body=const.LOGIC_MODULE_FLAG_FALSE)
+
+        atexit.register(at_exit)
 
 def main():
     thread1 = LogicStatus()

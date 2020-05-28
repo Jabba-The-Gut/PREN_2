@@ -23,20 +23,7 @@ channel.exchange_declare(exchange='main', exchange_type='topic')
 
 routing_key = 'logic'
 x=0
-# while(x<15):
-#     print(arrayHeight[x])
-#     message = {
-#         "height": arrayHeight[x],
-#         "sensor_front": arraySensorFront[x],
-#         "sensor_right": arraySensorRight[x]
-#     }
-#     time.sleep(1)
-#     channel.basic_publish(
-#         exchange='main', routing_key=const.LOGIC_BINDING_KEY, body=json.dumps(message))
-#     print(" [x] Sent %r:%r" % (const.LOGIC_BINDING_KEY, json.dumps(message)))
-#     x=x+1
-# connection.close()
-#
+
 f = open("logs_1.txt", "r")
 time.sleep(5)
 for x in f:

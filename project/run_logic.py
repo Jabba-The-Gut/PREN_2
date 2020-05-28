@@ -1,12 +1,12 @@
-from project.main.services.logic import SensorDataHandling
-from project.main.services.logic import LogicStatus
+from project.main.services.logic import sensor_data_handling
+from project.main.services.logic import logic_status
 import asyncio
 
 
 if __name__ == '__main__':
-    LogicStatus.main()
+    logic_status.main()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(SensorDataHandling.main(loop))
+    loop.run_until_complete(sensor_data_handling.main(loop))
     loop.close()
 
 

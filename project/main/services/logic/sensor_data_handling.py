@@ -3,12 +3,10 @@ import json
 import time
 
 import aio_pika
-from aio_pika import connect_robust, connect, Message, DeliveryMode, ExchangeType
-from mavsdk import (OffboardError, VelocityBodyYawspeed, PositionNedYaw)
+from aio_pika import connect_robust
+from mavsdk import (OffboardError, VelocityBodyYawspeed)
 
 from project.main.const import const
-import os
-import project.main.services.logic.logMessage
 
 
 async def takeoff():
@@ -63,47 +61,28 @@ async def generateCommandsForDrone(sensorData):
         time.sleep(0.25)
     else:
         if (heightState == 2 and frontState == 2 and sideState == 2):
-            #await log("forward")
-            #task = asyncio.ensure_future(one(), loop=event_loop)
             await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(1.0, 0.0, 0.0, 0))
             print("forward 1m/s")
-            # await asyncio.sleep(0.25)
         else:
             if (heightState == 0):
-                #os.system("logMessage.py up")
-             #   await log("up")
                 print("up 0.4m/s")
                 await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, -0.4, 0))
-                # await asyncio.sleep(0.25)
             elif (heightState == 1):
-                #os.system("logMessage.py down")
-              #  await log("down")
                 await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, 0.4, 0))
-                # await asyncio.sleep(0.25)
                 print("down 0.4m/s")
             else:
                 if (frontState == 1):
-                    #os.system("logMessage.py left")
-               #     await log("left")
                     await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, 0.0, -90))
                     await asyncio.sleep(1)
                     print("left 90")
                 else:
                     if (sideState == 0):
-                        #os.system("logMessage.py right/forward")
-                #        await log("right/forward")
                         await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(1.0, 0.0, -1, 0))
-                        # await asyncio.sleep(0.25)
                         print("right/forward 1m/s left 1m/s forward")
                     elif (sideState == 1):
-                        #os.system("logMessage.py left/forward")
-                 #       await log("left/forward")
                         await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(1.0, 0.0, 1, 0))
-                        # await asyncio.sleep(0.25)
                         print("left/forward 1m/s right 1m/s forward")
                     else:
-                        #os.system("logMessage.py forward")
-                  #      await log("forward")
                         await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(1.0, 0.0, 0.0, 0))
                         # await asyncio.sleep(3)
                         print("forward 1m/s")
