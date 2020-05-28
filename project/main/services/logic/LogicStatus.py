@@ -22,7 +22,9 @@ def callbackStatus(ch, method, properties, body):
     print("system_ok: %r" % LogicStatus.systemStateOk)
 
 class LogicStatus(threading.Thread):
-
+    """
+    This is the class that handles the receiving and sending of statuses corresponding to the logic service
+    """
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -32,6 +34,10 @@ class LogicStatus(threading.Thread):
         self.channel = None
 
     def declareQueueStatus(self):
+        """
+        Setups up the queue to send and receive status flags from/to the status service
+        :return: None
+        """
         self.connectionStatus = pika.BlockingConnection(
             pika.ConnectionParameters(host=const.CONNECTION_STRING))
         self.channel = self.connectionStatus.channel()
@@ -44,6 +50,10 @@ class LogicStatus(threading.Thread):
         self.checkOverallStatus()
 
     def checkOverallStatus(self):
+        """
+        Checks the overall status of the system and reacts accordingly.
+        :return:
+        """
         print(' [*] Waiting for overall values. To exit press CTRL+C')
         self.channelStatus.basic_consume(queue=const.LOGIC_STATUS_QUEUE_NAME,
                                          on_message_callback=callbackStatus, auto_ack=True)

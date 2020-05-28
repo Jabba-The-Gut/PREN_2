@@ -10,8 +10,12 @@ from project.main.const import const
 import atexit
 from project.main.services.logic import LogicStatus
 
-
 def callback(ch, method, properties, body):
+    """
+    This is the callback that is called when a message is received and consumed from this service's queue
+    :param body: The body of the message sent to this callback
+    :return: None
+    """
     # print(body)
     LogicSensor.generateCommandsForDrone(body)
 
@@ -62,6 +66,11 @@ async def takeoff():
         return
 
 class LogicSensor(threading.Thread):
+    """
+    This service handles the logic for relating to the sensor data. All of the sensor data from the data processing unit
+    is sent to this service and navigational instructions based on that data is sent to the flight controller from here
+    """
+
     systemReady = False
 
     def __init__(self):
@@ -76,6 +85,10 @@ class LogicSensor(threading.Thread):
         self.declareQueueSensor()
 
     def declareQueueSensor(self):
+        """
+        Setups up the queue to receive sensor data from the data processing service
+        :return: None
+        """
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=const.CONNECTION_STRING))
         self.channel = self.connection.channel()
@@ -100,12 +113,22 @@ class LogicSensor(threading.Thread):
         self.readSensorValues()
 
     def readSensorValues(self):
+        """
+        Reads the sensor values that are present in the queue in turn consuming them
+        :return: None
+        """
         print(' [*] Waiting for sensor values. To exit press CTRL+C')
         self.channel.basic_consume(queue=const.LOGIC_QUEUE_NAME,
                                    on_message_callback=callback, auto_ack=True)
         self.channel.start_consuming()
 
     def generateCommandsForDrone(sensorData):
+        """
+        This method is where the navigational commands for the flight controller are produced. The commands
+        are based on the height of the drone, the right hand side distance and the front distance. These values are
+        passed in from the data processing service.
+        :return: None
+        """
         height = json.loads(sensorData)["height"]
         sensor_front = json.loads(sensorData)["sensor_front"]
         sensor_side = json.loads(sensorData)["sensor_right"]
@@ -148,6 +171,10 @@ class LogicSensor(threading.Thread):
 
     # Return 0 means to low, return 1 means to high, return 2 means ok
     def checkHeightState(height):
+        """
+        Helper method evaluating only the height value
+        :return: None
+        """
         if height < const.HEIGHT_TO_FLIGHT_MIN:
             return 0
         elif height > const.HEIGHT_TO_FLIGHT_MAX:
@@ -156,12 +183,20 @@ class LogicSensor(threading.Thread):
             return 2
 
     def checkFrontState(sensor_front):
+        """
+        Helper method evaluating only the front-distance value
+        :return: None
+        """
         if sensor_front < const.MIN_FRONT_DISTANCE:
             return 1
         else:
             return 2
 
     def checkSideState(sensor_right):
+        """
+        Helper method evaluating only the right-hand-side-distance value
+        :return: None
+        """
         if sensor_right < const.MAX_RIGHT_DISTANCE:
             return 0
         elif sensor_right > const.MIN_RIGHT_DISTANCE:

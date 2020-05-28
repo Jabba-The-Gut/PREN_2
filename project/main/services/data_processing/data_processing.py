@@ -12,8 +12,7 @@ import atexit
 class DataProcessingConsumer:
     """
     This class is used to consume messages from its queue. It uses polling to fetch messages
-    with basic_get. This is some kind of hack, because the blocking character of start_consuming just
-    caused problems...
+    with basic_get.
     """
 
     def __init__(self, data_processing_service):
@@ -61,8 +60,14 @@ class DataProcessingConsumer:
 
 
 class DataProcessingService:
+    """
+    The service that does the actual processing of the data.
+    """
 
     def __init__(self):
+        """
+        Initializes the data processing service and sets all the necessary flags to ensure correct functionality
+        """
         self._px4_working = False
         self._blocked = False
 
@@ -109,7 +114,6 @@ class DataProcessingService:
     def handle_message(self, message):
         """
         Handles incoming messages from the consumer object.
-        Currently we only care about status messages, so we ignore everything else
         :param message: message content
         :return: None
         """
@@ -121,7 +125,8 @@ class DataProcessingService:
 
     def run(self):
         """
-        This is the core method of the data service. It contains the main logic
+        This is the core method of the data service. The main logic takes place here.
+        Also all of the sending of the messages to the logic module takes place here
         :return: None
         """
         # send message to status that data_processing module is ready
@@ -161,6 +166,10 @@ class DataProcessingService:
             time.sleep(0.01)
 
     def at_exit(self):
+        """
+        Callback that happens when it exits
+        :return: None
+        """
         # send message to status that data_processing module is ready
         self._channel.basic_publish(
             exchange=const.EXCHANGE, routing_key=const.STATUS_BINDING_KEY,
