@@ -13,6 +13,10 @@ import atexit
 
 
 def callbackStatus(ch, method, properties, body):
+    """
+    The callback method for to the status module
+    :return: None
+    """
     message_parts = body.decode('utf8').split(":")
 
     if message_parts[2].__eq__(" True"):

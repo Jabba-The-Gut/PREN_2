@@ -24,14 +24,13 @@ front_margin_offset = 5     # Tweak this value for when we have real time data a
 
 
 class stack:
+    """
+    This is the stack container
+    """
     def __init__(self, size):
         self.size = size
         self.buf = deque()
 
-    # Need to add logic to keep the buffer flowing. As in if there is no more space remove
-    # earlier elements and make space
-    # Almost like a sliding window
-    # This sliding window type thing has been implemented below in @evaluate_relevant_data()
     def push_to_stack(self, to_push):
         if len(self.buf) < self.size:
             self.buf.append(to_push)
@@ -46,6 +45,10 @@ class stack:
             return None
 
 class smartStack:
+    """
+    This is the "smart stack" it implements the stack and is used to store sensor data temporarily and process it
+    and then send it to the logic module
+    """
 
     def __init__(self, stack_size):
         self.stack = stack(stack_size)
