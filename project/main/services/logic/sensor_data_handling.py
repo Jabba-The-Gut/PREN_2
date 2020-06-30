@@ -10,6 +10,10 @@ from project.main.const import const
 
 
 async def takeoff():
+    """
+    This is the method used for taking off of the drone
+    :return: None
+    """
     await const.drone.connect(system_address="udp://:14540")
 
     print("Waiting for drone to connect...")
@@ -39,11 +43,20 @@ async def takeoff():
 
 
 async def flyToTravelHeight():
+    """
+    Makes the drone fly to the predefined fly height
+    :return:
+    """
     await const.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, -0.4, 0.0))
     await asyncio.sleep(1)
 
 
 async def generateCommandsForDrone(sensorData):
+    """
+    Creates commands to be sent to the drone
+    :param sensorData: the raw sensor data coming in to be processed
+    :return: returns the height , distance from front and distance from right
+    """
     height = json.loads(sensorData)["height"]
     sensor_front = json.loads(sensorData)["sensor_front"]
     sensor_side = json.loads(sensorData)["sensor_right"]
@@ -90,6 +103,11 @@ async def generateCommandsForDrone(sensorData):
 
 # Return 0 means to low, return 1 means to high, return 2 means ok
 def checkHeightState(height):
+    """
+    Checks the height of the drone
+    :param height: the current height to decide upon
+    :return: None
+    """
     if height < const.HEIGHT_TO_FLIGHT_MIN:
         return 0
     elif height > const.HEIGHT_TO_FLIGHT_MAX:
@@ -99,6 +117,11 @@ def checkHeightState(height):
 
 
 def checkFrontState(sensor_front):
+    """
+    Checks the front distance of the drone
+    :param sensor_front: the current front distance to decide upon
+    :return:
+    """
     if sensor_front < const.MIN_FRONT_DISTANCE:
         return 1
     else:
@@ -106,6 +129,11 @@ def checkFrontState(sensor_front):
 
 
 def checkSideState(sensor_right):
+    """
+    Checks the right distance of the drone
+    :param sensor_right: the current distance from the right of the drone to decide upon
+    :return:
+    """
     if sensor_right > const.MAX_RIGHT_DISTANCE:
         return 0
     elif sensor_right < const.MIN_RIGHT_DISTANCE:
